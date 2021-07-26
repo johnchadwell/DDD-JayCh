@@ -1,0 +1,497 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="RecipeClassLibrary.Models.Employee">
+    <Position X="11" Y="2.5" Width="1.5" />
+    <AssociationLine Name="EmployeeType" Type="RecipeClassLibrary.Models.EmployeeType" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="12.062" Y="2.5" />
+        <Point X="12.062" Y="1.25" />
+        <Point X="13.5" Y="1.25" />
+      </Path>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AAACAEAAACAABEAAAAAAAAAAQAAgAAAAAAAAAAAAAAg=</HashCode>
+      <FileName>Models\Employee.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="EmployeeType" />
+    </ShowAsAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="RecipeClassLibrary.Models.Customer">
+    <Position X="8.25" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAIAAAAAAAAAJAAAAAAAQAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Models\Customer.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="PersonType" />
+    </ShowAsAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="RecipeClassLibrary.Models.Order">
+    <Position X="9.5" Y="6.75" Width="1.5" />
+    <AssociationLine Name="OrderStatus" Type="RecipeClassLibrary.Models.OrderStatus" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="9.5" Y="7.195" />
+        <Point X="9.125" Y="7.195" />
+        <Point X="9.125" Y="5.562" />
+        <Point X="7" Y="5.562" />
+      </Path>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AAECAAAAAAECAAABAAAAAAAACAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Models\Order.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="OrderStatus" />
+      <Property Name="Employee" />
+      <Property Name="Customer" />
+    </ShowAsAssociation>
+    <ShowAsCollectionAssociation>
+      <Property Name="OrderItems" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="RecipeClassLibrary.Models.OrderItem">
+    <Position X="9.5" Y="10" Width="1.5" />
+    <AssociationLine Name="MenuItem" Type="RecipeClassLibrary.Models.MenuItem" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="10.656" Y="11.103" />
+        <Point X="10.656" Y="16.536" />
+        <Point X="12.5" Y="16.536" />
+      </Path>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAACABAAAAAAgAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Models\OrderItem.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="MenuItem" />
+      <Property Name="OptionalMenuItem" />
+      <Property Name="OrderItemStatus" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="RecipeClassLibrary.Models.AlaCarteOrderItem" Collapsed="true">
+    <Position X="6.25" Y="13.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAA=</HashCode>
+      <FileName>Models\OrderItem.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="RecipeClassLibrary.Models.OptionalOrderItem" Collapsed="true">
+    <Position X="14.75" Y="13" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAQAAAgAAEAAA=</HashCode>
+      <FileName>Models\OrderItem.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="RecipeClassLibrary.Models.BeverageOrderItem" Collapsed="true">
+    <Position X="4" Y="13" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAA=</HashCode>
+      <FileName>Models\OrderItem.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="RecipeClassLibrary.Models.MealOrderItem" Collapsed="true">
+    <Position X="12.5" Y="13" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAA=</HashCode>
+      <FileName>Models\OrderItem.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="RecipeClassLibrary.Models.Menu">
+    <Position X="2.25" Y="14.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAEAAAAAAAAAAAAAAAAQgAAAAAAAgAAAAAEAAAAA=</HashCode>
+      <FileName>Models\Menu.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Property Name="MenuCategories" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="RecipeClassLibrary.Models.MenuCategory">
+    <Position X="5.5" Y="16" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAgABAAAAAAAAQAAAAABAAAAAAAQAAAAAA=</HashCode>
+      <FileName>Models\MenuCategory.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Property Name="MenuItems" />
+      <Property Name="OptionalMenuItems" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="RecipeClassLibrary.Models.MenuItem">
+    <Position X="12.5" Y="16.25" Width="1.5" />
+    <AssociationLine Name="OptionalMenuItems" Type="RecipeClassLibrary.Models.OptionalMenuItem" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="12.5" Y="17.675" />
+        <Point X="12.125" Y="17.675" />
+        <Point X="12.125" Y="19.75" />
+        <Point X="9" Y="19.75" />
+      </Path>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAgAAAAAAAAABQAAIAAAQAAAAAAQAAACAA=</HashCode>
+      <FileName>Models\MenuItem.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="FoodItem" />
+    </ShowAsAssociation>
+    <ShowAsCollectionAssociation>
+      <Property Name="OptionalMenuItems" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="RecipeClassLibrary.Models.OptionalMenuItem">
+    <Position X="7.5" Y="18.75" Width="1.5" />
+    <AssociationLine Name="FoodItem" Type="RecipeClassLibrary.Models.FoodItem" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="9" Y="20.25" />
+        <Point X="12" Y="20.25" />
+        <Point X="12" Y="22.75" />
+      </Path>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAAAAAAAAAABAAAYAAAQAAAAAAAAAAAAE=</HashCode>
+      <FileName>Models\OptionalMenuItem.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="FoodItem" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="RecipeClassLibrary.Models.FoodItem">
+    <Position X="11.5" Y="22.75" Width="1.75" />
+    <AssociationLine Name="FoodItemType" Type="RecipeClassLibrary.Models.FoodItemType" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="11.5" Y="23.125" />
+        <Point X="7.5" Y="23.125" />
+        <Point X="7.5" Y="26.25" />
+      </Path>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAgAAAAAAAAAAQAAAAAAAAAAIAAAAAAAAA=</HashCode>
+      <FileName>Models\FoodItem.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="FoodItemType" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="RecipeClassLibrary.Models.FoodItemType">
+    <Position X="6.75" Y="26.25" Width="1.5" />
+    <AssociationLine Name="Use" Type="RecipeClassLibrary.Models.TypeClassification" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="8.25" Y="27.312" />
+        <Point X="10" Y="27.312" />
+        <Point X="10" Y="28" />
+      </Path>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAAAAAAAAAAAQAAAAEAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Models\FoodType.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Use" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="RecipeClassLibrary.Models.IngredientItem">
+    <Position X="11.25" Y="26" Width="2" />
+    <AssociationLine Name="FoodItem" Type="RecipeClassLibrary.Models.FoodItem" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="11.25" Y="26.791" />
+        <Point X="10.875" Y="26.791" />
+        <Point X="10.875" Y="23.938" />
+        <Point X="11.5" Y="23.938" />
+      </Path>
+    </AssociationLine>
+    <AssociationLine Name="ChildFoodItem" Type="RecipeClassLibrary.Models.FoodItem">
+      <MemberNameLabel ManuallyPlaced="true">
+        <Position X="-1.174" Y="0.156" />
+      </MemberNameLabel>
+    </AssociationLine>
+    <AssociationLine Name="IngredientItemType" Type="RecipeClassLibrary.Models.IngredientItemType" ManuallyRouted="true" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="13.25" Y="26.375" />
+        <Point X="13.726" Y="26.375" />
+        <Point X="13.726" Y="24.652" />
+        <Point X="15.25" Y="24.652" />
+      </Path>
+    </AssociationLine>
+    <AssociationLine Name="State" Type="RecipeClassLibrary.Models.IngredientStateType" ManuallyRouted="true" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="13.25" Y="26.75" />
+        <Point X="14.059" Y="26.75" />
+        <Point X="14.059" Y="25.281" />
+        <Point X="15.25" Y="25.281" />
+      </Path>
+    </AssociationLine>
+    <AssociationLine Name="Unit" Type="RecipeClassLibrary.Models.IngredientUnitType" ManuallyRouted="true" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="13.25" Y="27.125" />
+        <Point X="14.489" Y="27.125" />
+        <Point X="14.489" Y="26.092" />
+        <Point X="15.5" Y="26.092" />
+      </Path>
+    </AssociationLine>
+    <AssociationLine Name="InventoryItem" Type="RecipeClassLibrary.Models.InventoryItem" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="13.25" Y="27.5" />
+        <Point X="19.875" Y="27.5" />
+        <Point X="19.875" Y="28.75" />
+      </Path>
+      <MemberNameLabel ManuallyPlaced="true">
+        <Position X="0.18" Y="0.432" />
+      </MemberNameLabel>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAAAAAIAAAABCEAAAAAQAAQAAABAAAAAA=</HashCode>
+      <FileName>Models\IngredientItem.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="FoodItem" />
+      <Property Name="ChildFoodItem" />
+      <Property Name="IngredientItemType" />
+      <Property Name="State" />
+      <Property Name="Unit" />
+      <Property Name="InventoryItem" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="RecipeClassLibrary.Models.IngredientItemType" Collapsed="true">
+    <Position X="15.25" Y="24.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Models\IngredientItemType.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RecipeClassLibrary.Models.IngredientStateType" Collapsed="true">
+    <Position X="15.25" Y="25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Models\IngredientStateType.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RecipeClassLibrary.Models.IngredientUnitType" Collapsed="true">
+    <Position X="15.5" Y="25.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Models\IngredientUnitType.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RecipeClassLibrary.Models.InventoryItem">
+    <Position X="18.75" Y="28.75" Width="2" />
+    <AssociationLine Name="condition" Type="RecipeClassLibrary.Models.InventoryConditionType" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="20.75" Y="29.375" />
+        <Point X="21.125" Y="29.375" />
+        <Point X="21.125" Y="26.031" />
+        <Point X="24.5" Y="26.031" />
+      </Path>
+    </AssociationLine>
+    <AssociationLine Name="Unit" Type="RecipeClassLibrary.Models.InventoryUnitType" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="20.75" Y="29.688" />
+        <Point X="25" Y="29.688" />
+        <Point X="25" Y="27.562" />
+      </Path>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AAACAIAAAAAAAAAAIAgAAgQAQAAAQQAAAAAAgQAAAAA=</HashCode>
+      <FileName>Models\InventoryItem.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="FoodItemType" />
+      <Property Name="condition" />
+      <Property Name="Unit" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="RecipeClassLibrary.Models.InventoryUnitType" Collapsed="true">
+    <Position X="24.25" Y="27" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Models\InventoryUnitType.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RecipeClassLibrary.Models.InventoryConditionType" Collapsed="true">
+    <Position X="24.5" Y="25.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Models\InventoryConditionType.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RecipeClassLibrary.Models.TypeClassification">
+    <Position X="9.25" Y="28" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Models\TypeClassification.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RecipeClassLibrary.Models.AdjustInventory">
+    <Position X="21" Y="13" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAEAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Models\AdjustInventory.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Employee" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="RecipeClassLibrary.Models.StockCheckAdjustment">
+    <Position X="21.5" Y="17" Width="1.5" />
+    <AssociationLine Name="InventoryItem" Type="RecipeClassLibrary.Models.InventoryItem" ManuallyRouted="true" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="22.25" Y="18.233" />
+        <Point X="22.25" Y="19.001" />
+        <Point X="20.438" Y="19.001" />
+        <Point X="20.438" Y="28.75" />
+      </Path>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAQAAAAAAAAAA=</HashCode>
+      <FileName>Models\AdjustInventory.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="InventoryItem" />
+    </ShowAsAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="RecipeClassLibrary.Models.SpoilageAdjustment">
+    <Position X="18" Y="17" Width="1.5" />
+    <InheritanceLine Type="RecipeClassLibrary.Models.AdjustInventory" FixedFromPoint="true">
+      <Path>
+        <Point X="21.75" Y="14.103" />
+        <Point X="21.75" Y="16.13" />
+        <Point X="18.75" Y="16.13" />
+        <Point X="18.75" Y="17" />
+      </Path>
+    </InheritanceLine>
+    <AssociationLine Name="InventoryItem" Type="RecipeClassLibrary.Models.InventoryItem" ManuallyRouted="true" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="18.75" Y="18.233" />
+        <Point X="18.75" Y="18.956" />
+        <Point X="20.438" Y="18.956" />
+        <Point X="20.438" Y="28.75" />
+      </Path>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAQAAAAAAAAAA=</HashCode>
+      <FileName>Models\AdjustInventory.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="InventoryItem" />
+    </ShowAsAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="RecipeClassLibrary.Models.OtherAdjustment">
+    <Position X="25.25" Y="17" Width="1.5" />
+    <InheritanceLine Type="RecipeClassLibrary.Models.AdjustInventory" ManuallyRouted="true">
+      <Path>
+        <Point X="21.75" Y="14.103" />
+        <Point X="21.75" Y="16.13" />
+        <Point X="26" Y="16.13" />
+        <Point X="26" Y="17" />
+      </Path>
+    </InheritanceLine>
+    <AssociationLine Name="InventoryItem" Type="RecipeClassLibrary.Models.InventoryItem" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="26.406" Y="18.684" />
+        <Point X="26.406" Y="19.059" />
+        <Point X="20.5" Y="19.059" />
+        <Point X="20.5" Y="28.75" />
+      </Path>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAIAAAAAAACAAAAAAAAAQAAAAAAAAAA=</HashCode>
+      <FileName>Models\AdjustInventory.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="InventoryItem" />
+    </ShowAsAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="RecipeClassLibrary.Models.InventoryStockItem">
+    <Position X="28" Y="31" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAACAIAAAAAAAAABKAAAAASAAAAAAAAAQAAAgAAAAAA=</HashCode>
+      <FileName>Models\InventoryStock.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="InventoryItem" />
+      <Property Name="InventoryVendorItem" />
+    </ShowAsAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="RecipeClassLibrary.Models.InventoryVendorItem">
+    <Position X="28" Y="23" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAASAAQAAAABAAAAAAAAAAAA=</HashCode>
+      <FileName>Models\InventoryVendorItem.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Vendor" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="RecipeClassLibrary.Models.InventoryDelivery">
+    <Position X="32.5" Y="28.5" Width="2.25" />
+    <AssociationLine Name="InventoryVendorItem" Type="RecipeClassLibrary.Models.InventoryVendorItem" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="33.344" Y="28.5" />
+        <Point X="33.344" Y="28.125" />
+        <Point X="29.625" Y="28.125" />
+        <Point X="29.625" Y="24.488" />
+      </Path>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAIAAAEAAAAACAAAAAAABEAAAAAAQAAAAAAAAAA=</HashCode>
+      <FileName>Models\InventoryDelivery.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="InventoryVendorItem" />
+    </ShowAsAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="RecipeClassLibrary.Models.Vendor">
+    <Position X="33.25" Y="23.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAIAAA=</HashCode>
+      <FileName>Models\Vendor.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Interface Name="RecipeClassLibrary.Models.IPerson" Collapsed="true">
+    <Position X="9.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Models\IPerson.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Enum Name="RecipeClassLibrary.Models.PersonType" Collapsed="true">
+    <Position X="5.75" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAIEAAQAAAAAAAEAAAAAAAAAACAAAAAAAAAAA=</HashCode>
+      <FileName>Models\PersonType.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="RecipeClassLibrary.Models.EmployeeType">
+    <Position X="13.5" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAIAAAAAAAAAAAgAAAAAACBAAAAAAAAABAAAA=</HashCode>
+      <FileName>Models\EmployeeType.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="RecipeClassLibrary.Models.OrderStatus">
+    <Position X="5.5" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAgAAIAAAAAAAAAAAAEAAAAAAAEAAAAACA=</HashCode>
+      <FileName>Models\OrderStatus.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="RecipeClassLibrary.Models.OrderItemStatus">
+    <Position X="13" Y="9.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAACA=</HashCode>
+      <FileName>Models\OrderItemStatus.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
