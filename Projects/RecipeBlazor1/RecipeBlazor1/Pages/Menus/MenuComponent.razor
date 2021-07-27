@@ -1,0 +1,162 @@
+﻿@inject HttpClient Http
+
+<style>
+
+    .menu {
+        border-radius: 5px;
+        border: 1px solid #9575CD;
+        background-color: #BAA3E0;
+        color: #ffffff
+    }
+
+    .menuSelected {
+        border-radius: 5px;
+        border: 5px solid #9575CD;
+        background-color: #BAA3E0;
+        /*background-color: #CEBEE9;*/
+        color: #ffffff
+    }
+
+
+</style>
+
+<div style="background-color:inherit">
+
+    @*<div class="d-flex bg-light">
+
+
+            <div class="p-2 border" style="text-align:center;vertical-align:middle;width:50px;height:50px;margin:10px;">
+                <a id="MenuAdd" href="#" onclick="alert('clicked');" class="enabled" style=""><i class="fas fa-plus"></i></a>
+            </div>
+            <div class="p-2 border" style="text-align:center;vertical-align:middle;width:50px;height:50px;margin:10px;">
+                <a id="MenuRemove" href="#" onclick="alert('clicked');" class="@((enabled? "enabled" : "disabled"))" style=""><i class="fas fa-minus"></i></a>
+            </div>
+            <div class="p-2 border" style="text-align:center;vertical-align:middle;width:50px;height:50px;margin:10px;">
+                <a id="MenuEdit" href="#" onclick="alert('clicked');" class="@((enabled? "enabled" : "disabled"))" style=""><i class="fas fa-edit"></i></a>
+            </div>
+            <div class="p-2 border" style="text-align:center;vertical-align:middle;width:50px;height:50px;margin:10px;">
+                <a id="MenuCopy" href="#" onclick="alert('clicked');" class="@((enabled? "enabled" : "disabled"))" style=""><i class="fas fa-paste"></i></a>
+            </div>
+
+
+        </div>*@
+
+    <div class="d-flex">
+        <div class="p-2 border" style="text-align:center;vertical-align:middle;width:40px;height:40px;margin:10px;">
+            <a id="MenuAdd" href="" @onclick="@OnMenuAddClick" @onclick:preventDefault class="enabled" style=""><i class="fas fa-plus"></i></a>
+            @*<a id="MenuAdd" @onclick="@(() => OnMenuAddClick.InvokeAsync(1))" class="enabled" style=""><i class="fas fa-plus"></i></a>*@
+        </div>
+        <div class="p-2 border" style="text-align:center;vertical-align:middle;width:40px;height:40px;margin:10px;">
+            <a id="MenuEdit" href="" @onclick="@OnMenuEditClick" @onclick:preventDefault class="@((enabled? "enabled" : "disabled"))" style=""><i class="fas fa-edit"></i></a>
+        </div>
+        <div class="p-2 border" style="text-align:center;vertical-align:middle;width:40px;height:40px;margin:10px;">
+            <a id="MenuRemove" href="" @onclick="@OnMenuRemoveClick" @onclick:preventDefault class="@((enabled? "enabled" : "disabled"))" style=""><i class="fas fa-minus"></i></a>
+        </div>
+        <div class="p-2 border" style="text-align:center;vertical-align:middle;width:40px;height:40px;margin:10px;">
+            <a id="MenuCopy" href="" @onclick="@OnCopyClick" @onclick:preventDefault class="@((enabled? "enabled" : "disabled"))" style=""><i class="fas fa-paste"></i></a>
+        </div>
+        <div class="p-2" style="text-align:left;vertical-align:middle;width:200px;height:40px;margin:10px;font-size:1.5em;">
+            Menus
+        </div>
+    </div>
+    <div class="tile-container d-flex flex-wrap">
+
+        @foreach (var item in menus)
+        {
+            //var backcolor = "#ffffff";
+            //var color = "#000000";
+            //if (item.Id == MenuId)
+            //{
+            //    backcolor = "#ff0000";
+            //    color = "#ffffff";
+            //}
+            var selclass = "menu";
+            if (item.Id == MenuId)
+            {
+                selclass = "menuSelected";
+            }
+            <!--div class="menuDiv p-2 border" style="text-align:center;vertical-align:middle;margin:10px; background-color:@backcolor; color:@color"-->
+
+            <div class="menuDiv p-2 @selclass" style="text-align:center;vertical-align:middle;margin:10px;">
+                <a @onclick="@(() => OnMenuClick.InvokeAsync(@item.Id))" class="btn" style="width: 100px; height: 100px;">
+                    @item.Name
+                </a>
+            </div>
+
+        }
+
+    </div>
+
+    <MenuComponentNew @ref="menuComponentNew" OnSubmitCallback="OnAddOrEditMenuSubmitted"></MenuComponentNew>
+
+
+</div>
+
+@code {
+    [Parameter]
+    public int MenuId { get; set; }
+    [Parameter]
+    public EventCallback<int> OnMenuClick { get; set; }
+    //[Parameter]
+    //public EventCallback<int> OnMenuAddClick { get; set; }
+    [Parameter]
+    public EventCallback<int> MenuIdChanged { get; set; }
+    MenuComponentNew menuComponentNew;
+
+    private const string ServiceEndpoint = "https://localhost:44300/api/Menus";
+    private List<Menu> menus = new List<Menu>();
+    private bool enabled = false;
+
+    public void OnMenuAddClick()
+    {
+        menuComponentNew.SetPatient(new Menu());
+        menuComponentNew.SetMode(MenuComponentNew.Modes.Create);
+        menuComponentNew.Show();
+    }
+    public void OnMenuEditClick()
+    {
+        menuComponentNew.SetPatient(menus.Single(s => s.Id == MenuId));
+        menuComponentNew.SetMode(MenuComponentNew.Modes.Edit);
+        menuComponentNew.Show();
+    }
+    public async Task OnAddOrEditMenuSubmitted(EventArgs e)
+    {
+        await GetMenus();
+        MenuId = menus[menus.Count - 1].Id;
+        await OnMenuClick.InvokeAsync(MenuId);
+        //menus = await Http.GetFromJsonAsync<List<Menu>>(ServiceEndpoint);
+    }
+
+    public async Task OnMenuRemoveClick()
+    {
+        var url = ServiceEndpoint + "/" + MenuId;
+        await Http.DeleteAsync(url);
+        await GetMenus();
+        MenuId = 0;
+    }
+
+    public void OnCopyClick()
+    {
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (MenuId == 0)
+        {
+            enabled = false;
+        }
+        else if (MenuId > 0)
+        {
+            enabled = true;
+        }
+
+    }
+
+    protected override async Task OnInitializedAsync() => await GetMenus();
+
+    private async Task GetMenus()
+    {
+        menus = await Http.GetFromJsonAsync<List<Menu>>(ServiceEndpoint);
+    }
+
+}

@@ -1,0 +1,300 @@
+﻿@inject HttpClient Http
+
+<style>
+
+    .header {
+        border-top: 1px solid #8A8A8A;
+        background-color: #ffffff;
+        color: #000000
+    }
+    .option {
+        border: 0px;
+        border-radius: 0px;
+        border-top: 3px solid #7AD6BE;
+        background-color: #ffffff;
+        /*background-image: linear-gradient(to right, rgba(138, 141, 219,1), rgba(138, 141, 219,0));*/
+        background-image: linear-gradient(to right, rgba(256,0,126,1), rgba(256,0,126,.5));
+        color: #ffffff
+    }
+
+
+    .optionSelected {
+        border: 0px;
+        border-radius: 0px;
+        border-top: 3px solid #7AD6BE;
+        /*        background-color: #7C4DFF;
+        background-image: linear-gradient(to right, rgba(138, 141, 219,1), rgba(138, 141, 219,0));
+*/
+        background-color: #7C4DFF;
+        background-image: linear-gradient(to right, rgba(256,0,126,0), rgba(256,0,126,1));
+        color: #ffffff
+    }
+    
+
+
+</style>
+
+<div style="background-color:inherit">
+
+
+    <div class="d-flex">
+        <div class="p-2 border" style="text-align:center;vertical-align:middle;width:40px;height:40px;margin:10px;">
+            <a id="MenuAdd" @onclick="@OnAddClick" class="enabled" style=""><i class="fas fa-plus"></i></a>
+        </div>
+        <div class="p-2 border" style="text-align:center;vertical-align:middle;width:40px;height:40px;margin:10px;">
+            <a id="MenuEdit" href="" @onclick="@OnEditClick" @onclick:preventDefault class="@((enabled? "enabled" : "disabled"))" style=""><i class="fas fa-edit"></i></a>
+        </div>
+        <div class="p-2 border" style="text-align:center;vertical-align:middle;width:40px;height:40px;margin:10px;">
+            <a id="MenuRemove" href="" @onclick="@OnRemoveClick" @onclick:preventDefault class="@((enabled? "enabled" : "disabled"))" style=""><i class="fas fa-minus"></i></a>
+        </div>
+        <div class="p-2 border" style="text-align:center;vertical-align:middle;width:40px;height:40px;margin:10px;">
+            <a id="MenuCopy" href="" @onclick="@OnCopyClick" @onclick:preventDefault class="@((enabled? "enabled" : "disabled"))" style=""><i class="fas fa-paste"></i></a>
+        </div>
+        <div class="p-2" style="text-align:left;vertical-align:middle;width:200px;height:40px;margin:10px;font-size:1.5em;">
+            Options
+        </div>
+    </div>
+
+    <div class="tile-container">
+        <div class="p-2 header" style="vertical-align:middle;margin:10px; width:100%; ">
+            <div style="display:inline-block; width:200px">Group</div>
+            <div style="display:inline-block; width:200px">Food Item</div>
+            <div style="display:inline-block; width:200px">Cost</div>
+            @*<a @onclick="@(() => OnOptionalClick.InvokeAsync(@item.Id))" class="btn" style="width: 100px; height: 100px; ">*@
+
+        </div>
+
+        @foreach (var item in items)
+        {
+            if (item.GroupName != @orderbyname)
+            {
+
+            }
+            //var backcolor = "";
+            var selclass = "option";
+            if (item.Id == OptionalMenuId)
+            {
+                //backcolor = BackColorSel;
+                selclass = "optionSelected";
+            }
+            else
+            {
+                //backcolor = BackColorUnSel;
+            }
+            //Console.WriteLine("backcolor " + backcolor);
+
+            <div class="p-2 @selclass" style="vertical-align:middle;margin:10px;">
+                <a @onclick="@(() => OnOptionalClick(@item.Id))" class="btn" style="width: 100%; height: 25px; text-align:start; vertical-align:middle; margin:0px; padding:0px;">
+                    <div style="display:inline-block; width:200px">@item.GroupName</div>
+                    <div style="display:inline-block; width:200px">@item.FoodItem.Name</div>
+                    <div style="display:inline-block; width:200px">@item.Cost</div>
+                </a>
+                @*<a @onclick="@(() => OnOptionalClick.InvokeAsync(@item.Id))" class="btn" style="width: 100px; height: 100px; ">*@
+
+            </div>
+        }
+    </div>
+
+    <OptionalComponentNew @ref="optionalComponentNew" OnSubmitCallback="OnAddOrEditOptionalSubmitted"></OptionalComponentNew>
+
+
+</div>
+
+@code {
+    //[Parameter]
+    //public int MenuCategoryId { get; set; }
+    [Parameter]
+    public int OptionalMenuId { get; set; }
+    [Parameter]
+    public int OptionalId { get; set; }
+    [Parameter]
+    public OptionalEnum OptionalType { get; set; }
+    [Parameter]
+    public int Reload { get; set; }
+    //[Parameter]
+    //public EventCallback<int> MenuIdChanged { get; set; }
+    //[Parameter]
+    //public EventCallback<int> MenuCategoryIdChanged { get; set; }
+    [Parameter]
+    public EventCallback<int> OptionalMenuIdChanged { get; set; }
+    [Parameter]
+    public EventCallback<int> OptionalIdChanged { get; set; }
+    [Parameter]
+    public EventCallback<OptionalEnum> OptionalTypeChanged { get; set; }
+    [Parameter]
+    public EventCallback<int> ReloadChanged { get; set; }
+    [Parameter]
+    public EventCallback<int> OnOptionalCatClick { get; set; }
+    [Parameter]
+    public EventCallback<int> OnOptionalMenuClick { get; set; }
+
+    [Parameter]
+    public string BackColorSel { get; set; }
+    [Parameter]
+    public string BackColorUnSel { get; set; }
+
+    public string OptionalTitle { get; set; }
+
+    OptionalComponentNew optionalComponentNew;
+
+    private string url { get; set; }
+    private List<OptionalMenuItem> items = new List<OptionalMenuItem>();
+    private bool enabled = false;
+    private string orderbyname = "";
+
+    public void OnOptionalClick(int Id)
+    {
+        if (OptionalType.Equals(OptionalEnum.MenuCategory))
+        {
+            OnOptionalCatClick.InvokeAsync(Id);
+        } else if (OptionalType.Equals(OptionalEnum.MenuItem))
+        {
+            OnOptionalMenuClick.InvokeAsync(Id);
+        }
+    }
+
+    public void OnAddClick()
+    {
+
+        OptionalMenuItem m = new OptionalMenuItem();
+        FoodItem fi = new FoodItem();
+        m.FoodItem = fi;
+        //FoodItemType fit = new FoodItemType();
+        //m.FoodItem.FoodItemType = fit;
+
+        if (OptionalType.Equals(OptionalEnum.MenuCategory))
+        {
+            m.MenuCategoryId = OptionalId;
+            optionalComponentNew.SetOptMode(OptionalComponentNew.OptModes.MenuCategory);
+        }
+        else if (OptionalType.Equals(OptionalEnum.MenuItem))
+        {
+            m.MenuItemId = OptionalId;
+            optionalComponentNew.SetOptMode(OptionalComponentNew.OptModes.MenuItem);
+        }
+        optionalComponentNew.SelFoodItemType = "";
+        optionalComponentNew.SelFoodItem = "";
+        optionalComponentNew.SetItem(m);
+
+        optionalComponentNew.SetMode(OptionalComponentNew.Modes.Create);
+        optionalComponentNew.Show();
+    }
+    public void OnEditClick()
+    {
+        OptionalMenuItem m = items.Single(s => s.Id == OptionalMenuId);
+        optionalComponentNew.SetMode(OptionalComponentNew.Modes.Edit);
+        if (OptionalType.Equals(OptionalEnum.MenuCategory))
+        {
+            optionalComponentNew.SetItem(m);
+            //optionalComponentNew.SetItem(items.Single(s => s.Id == OptionalMenuId));
+            optionalComponentNew.SetOptMode(OptionalComponentNew.OptModes.MenuCategory);
+        }
+        else if (OptionalType.Equals(OptionalEnum.MenuItem))
+        {
+            optionalComponentNew.SetItem(m);
+            //optionalComponentNew.SetItem(items.Single(s => s.Id == OptionalMenuId));
+            optionalComponentNew.SetOptMode(OptionalComponentNew.OptModes.MenuItem);
+        }
+        if (m.FoodItem == null)
+        {
+            optionalComponentNew.SelFoodItemType = "";
+            optionalComponentNew.SelFoodItem = "";
+        }
+        else
+        {
+            optionalComponentNew.SelFoodItemType = m.FoodItem.FoodItemType.Id.ToString();
+            optionalComponentNew.SelFoodItem = m.FoodItem.Id.ToString();
+        }
+
+        optionalComponentNew.Show();
+    }
+    public async Task OnAddOrEditOptionalSubmitted(EventArgs e)
+    {
+        if (OptionalType.Equals(OptionalEnum.MenuCategory))
+        {
+            url = "https://localhost:44300/api/OptionsForMenuCategory/" + OptionalId;
+            await GetOptionalMenuItems(url);
+        }
+        else if (OptionalType.Equals(OptionalEnum.MenuItem))
+        {
+            url = "https://localhost:44300/api/OptionsForMenuItem/" + OptionalId;
+            await GetOptionalMenuItems(url);
+        }
+        OptionalId = items[items.Count - 1].Id;
+
+        //Console.WriteLine("OnAddOrEditMenuSubmitted");
+        //url = "https://localhost:44300/api/CategoriesForMenu/" + MenuId;
+        //await GetMenuCategories(url);
+        //Console.WriteLine("menus.Count = " + menuCategories.Count);
+        ////menus = await Http.GetFromJsonAsync<List<Menu>>(ServiceEndpoint);
+    }
+
+    public async Task OnRemoveClick()
+    {
+        url = "https://localhost:44300/api/OptionalMenuItems/" + OptionalMenuId;
+        await Http.DeleteAsync(url);
+        if (OptionalType.Equals(OptionalEnum.MenuCategory))
+        {
+            url = "https://localhost:44300/api/OptionsForMenuCategory/" + OptionalId;
+            await GetOptionalMenuItems(url);
+        }
+        else if (OptionalType.Equals(OptionalEnum.MenuItem))
+        {
+            url = "https://localhost:44300/api/OptionsForMenuItem/" + OptionalId;
+            await GetOptionalMenuItems(url);
+        }
+
+    }
+
+    public void OnCopyClick()
+    {
+    }
+
+
+
+    protected override async Task OnParametersSetAsync()
+    {
+
+        if (OptionalMenuId == 0)
+        {
+            enabled = false;
+        }
+        else if (OptionalMenuId > 0)
+        {
+            enabled = true;
+        }
+
+
+        if (Reload==1)
+        {
+            if (OptionalType.Equals(OptionalEnum.MenuCategory))
+            {
+                //if (OptionalId != null && OptionalId > 0)
+                //{
+                url = "https://localhost:44300/api/OptionsForMenuCategory/" + OptionalId;
+                await GetOptionalMenuItems(url);
+                //}
+            }
+            else if (OptionalType.Equals(OptionalEnum.MenuItem))
+            {
+                //if (OptionalId != null && OptionalId > 0)
+                //{
+                url = "https://localhost:44300/api/OptionsForMenuItem/" + OptionalId;
+                await GetOptionalMenuItems(url);
+                //}
+
+            }
+
+        }
+
+    }
+    private async Task GetOptionalMenuItems(string url)
+    {
+
+        var items1 = await Http.GetFromJsonAsync<List<OptionalMenuItem>>(url);
+        items = items1.OrderBy(x => x.GroupName).ToList();
+
+        //System.Console.WriteLine("1");
+    }
+
+}

@@ -1,0 +1,130 @@
+﻿@inject HttpClient Http
+
+@if (IsVisible)
+{
+    <style>
+        /* The Modal (background) */
+        .modal {
+            display: block; /* Shown by default */
+            position: fixed; /* Stay in place */
+            z-index: 1; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgb(0,0,0); /* Fallback color */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+        }
+        /* Modal Content/Box */
+        .modal-content {
+            background-color: #fefefe;
+            margin: 1% auto; /* 10% from the top and centered */
+            padding: 10px;
+            border: 1px solid #888;
+            width: 50%; /* Could be more or less, depending on screen size */
+        }
+    </style>
+    <div class="modal" tabindex="-1" style="display: block" role="dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Menu Category Information</h5>
+            </div>
+
+            <EditForm Model=@MenuCategoryObj OnSubmit=@OnSubmit>
+                <div class="modal-body">
+                    <table width="100%">
+                        <tr>
+                            <td>Name:</td>
+                            <td><InputText @bind-Value=MenuCategoryObj.Name style="width:100%;" /></td>
+                        </tr>
+                        <tr>
+                            <td>Description:</td>
+                            <td><InputText @bind-Value=MenuCategoryObj.Description style="width:100%;" /></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <input type="submit" value="Ok" class="btn btn-primary" />
+                    <input type="button" value="Cancel" class="btn btn-secondary" @onclick="OnCancel" />
+                </div>
+            </EditForm>
+
+        </div>
+    </div>
+}
+
+@code {
+    /// <summary>
+    /// Visible flag
+    /// </summary>
+    [Parameter]
+    public bool IsVisible { get; set; } = false;
+
+    /// <summary>
+    /// Form mode - Edit or create
+    /// </summary>
+    [Parameter]
+    public Modes Mode { get; set; } = Modes.Create;
+    public void SetMode(Modes mode)
+    {
+        Mode = mode;
+    }
+
+    /// <summary>
+    /// Patient object bound to the form
+    /// </summary>
+    [Parameter]
+    public MenuCategory MenuCategoryObj { get; set; }
+    public void SetPatient(MenuCategory menuCategoryObj)
+    {
+        MenuCategoryObj = menuCategoryObj;
+    }
+
+    public enum Modes { Edit, Create };
+
+    public void Show()
+    {
+        IsVisible = true;
+        StateHasChanged();
+    }
+    public void Hide()
+    {
+        IsVisible = false;
+        StateHasChanged();
+    }
+
+    // Callback event to return submit information to the parent page/component
+    [Parameter]
+    public EventCallback<EventArgs> OnSubmitCallback { get; set; }
+
+
+    private async Task OnSubmit()
+    {
+        string ServiceEndpoint = "https://localhost:44300/api/MenuCategories";
+
+        if (Mode.Equals(Modes.Create))
+        {
+            await Http.PostAsJsonAsync<MenuCategory>(ServiceEndpoint, MenuCategoryObj);
+        } else
+        {
+            var url = ServiceEndpoint + "/" + MenuCategoryObj.Id;
+            await Http.PutAsJsonAsync(url, MenuCategoryObj);
+
+        }
+
+
+        //toastService.ShowInfo("Form OnSubmit called");
+        Hide();
+
+        // Call parent's event callback
+        if (OnSubmitCallback.HasDelegate)
+            OnSubmitCallback.InvokeAsync(null);
+    }
+
+    private void OnCancel()
+    {
+        //toastService.ShowInfo("Form OnCancel called");
+        Hide();
+    }
+}

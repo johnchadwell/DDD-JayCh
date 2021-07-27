@@ -1,0 +1,183 @@
+﻿@inject HttpClient Http
+
+<style>
+
+    .cat {
+        border-radius: 10px;
+        border: 1px solid #D500F9;
+        background-color: #EFA0FD;
+        color: #ffffff
+    }
+
+    .catSelected {
+        border-radius: 10px;
+        border: 5px solid #D500F9;
+        background-color: #EFA0FD;
+        color: #ffffff
+    }
+
+</style>
+
+<div style="background-color:inherit">
+
+    @*<div class="d-flex bg-light" style="">
+
+            <div class="p-2 border" style="text-align:center;vertical-align:middle;width:50px;height:50px;margin:10px;">
+                <a id="CatAdd" href="#" onclick="alert('clicked');" class="enabled"><i class="fas fa-plus"></i></a>
+            </div>
+            <div class="p-2 border" style="text-align:center;vertical-align:middle;width:50px;height:50px;margin:10px;">
+                <a id="CatRemove" href="#" onclick="alert('clicked');" class="@((enabled? "enabled" : "disabled"))"><i class="fas fa-minus"></i></a>
+            </div>
+            <div class="p-2 border" style="text-align:center;vertical-align:middle;width:50px;height:50px;margin:10px;">
+                <a id="CatEdit" href="#" onclick="alert('clicked');" class="@((enabled? "enabled" : "disabled"))"><i class="fas fa-edit"></i></a>
+            </div>
+            <div class="p-2 border" style="text-align:center;vertical-align:middle;width:50px;height:50px;margin:10px;">
+                <a id="CatCopy" href="#" onclick="alert('clicked');" class="@((enabled? "enabled" : "disabled"))" style=""><i class="fas fa-paste"></i></a>
+            </div>
+
+        </div>*@
+
+    <div class="d-flex">
+
+
+        <div class="p-2 border" style="text-align:center;vertical-align:middle;width:40px;height:40px;margin:10px;">
+            <a id="MenuAdd" @onclick="@OnAddClick" class="enabled"><i class="fas fa-plus"></i></a>
+        </div>
+        <div class="p-2 border" style="text-align:center;vertical-align:middle;width:40px;height:40px;margin:10px;">
+            <a id="MenuEdit" href="" @onclick="@OnEditClick" @onclick:preventDefault class="@((enabled? "enabled" : "disabled"))"><i class="fas fa-edit"></i></a>
+        </div>
+        <div class="p-2 border" style="text-align:center;vertical-align:middle;width:40px;height:40px;margin:10px;">
+            <a id="MenuRemove" href="" @onclick="@OnRemoveClick" @onclick:preventDefault class="@((enabled? "enabled" : "disabled"))"><i class="fas fa-minus"></i></a>
+        </div>
+        <div class="p-2 border" style="text-align:center;vertical-align:middle;width:40px;height:40px;margin:10px;">
+            <a id="MenuCopy" href="#" @onclick="@OnCopyClick" @onclick:preventDefault class="@((enabled? "enabled" : "disabled"))"><i class="fas fa-paste"></i></a>
+        </div>
+        <div class="p-2" style="text-align:left;vertical-align:middle;width:200px;height:40px;margin:10px;font-size:1.5em;">
+            Categories
+        </div>
+    </div>
+
+    <div class="d-flex flex-wrap tile-container">
+
+        @foreach (var item in menuCategories)
+        {
+            //var backcolor = "#ffffff";
+            //var color = "#000000";
+            //if (item.Id == MenuCategoryId)
+            //{
+            //    backcolor = "#0000FF";
+            //    color = "#ffffff";
+            //}
+            //  background-color:@backcolor; color:@color
+
+
+            var selclass = "cat";
+            if (item.Id == MenuCategoryId)
+            {
+                selclass = "catSelected";
+            }
+
+            <div class="catDiv p-2 @selclass" style="text-align:center;vertical-align:middle;margin:10px;">
+                <a @onclick="@(() => OnCategoryClick.InvokeAsync(@item.Id))" class="btn" style="width: 100px; height: 100px; ">
+                    @item.Name
+                </a>
+            </div>
+        }
+    </div>
+
+    <CategoryComponentNew @ref="menuCategoryComponentNew" OnSubmitCallback="OnAddOrEditCategorySubmitted"></CategoryComponentNew>
+
+</div>
+
+@code {
+    [Parameter]
+    public int MenuId { get; set; }
+    [Parameter]
+    public int MenuCategoryId { get; set; }
+    [Parameter]
+    public int Reload { get; set; }
+    [Parameter]
+    public EventCallback<int> OnCategoryClick { get; set; }
+    [Parameter]
+    public EventCallback<int> MenuIdChanged { get; set; }
+    [Parameter]
+    public EventCallback<int> MenuCategoryIdChanged { get; set; }
+    [Parameter]
+    public EventCallback<int> ReloadChanged { get; set; }
+
+    CategoryComponentNew menuCategoryComponentNew;
+
+    public int CurrentOptionalMenuId { get; set; }
+    public OptionalEnum OptionalType = OptionalEnum.MenuCategory;
+
+    private string url { get; set; }
+    private List<MenuCategory> menuCategories = new List<MenuCategory>();
+    private bool enabled = false;
+
+
+    public void OnAddClick()
+    {
+        MenuCategory m = new MenuCategory();
+        m.MenuId = MenuId;
+        menuCategoryComponentNew.SetPatient(m);
+        menuCategoryComponentNew.SetMode(CategoryComponentNew.Modes.Create);
+        menuCategoryComponentNew.Show();
+    }
+    public void OnEditClick()
+    {
+        menuCategoryComponentNew.SetPatient(menuCategories.Single(s => s.Id == MenuCategoryId));
+        menuCategoryComponentNew.SetMode(CategoryComponentNew.Modes.Edit);
+        menuCategoryComponentNew.Show();
+    }
+    public async Task OnAddOrEditCategorySubmitted(EventArgs e)
+    {
+        url = "https://localhost:44300/api/CategoriesForMenu/" + MenuId;
+        await GetMenuCategories(url);
+        MenuCategoryId = menuCategories[menuCategories.Count - 1].Id;
+        //menus = await Http.GetFromJsonAsync<List<Menu>>(ServiceEndpoint);
+    }
+
+    public async Task OnRemoveClick()
+    {
+        url = "https://localhost:44300/api/MenuCategories/" + MenuCategoryId;
+        await Http.DeleteAsync(url);
+        url = "https://localhost:44300/api/CategoriesForMenu/" + MenuId;
+        await GetMenuCategories(url);
+        MenuCategoryId = 0;
+    }
+
+    public void OnCopyClick()
+    {
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+
+
+        if (MenuCategoryId == 0)
+        {
+            enabled = false;
+        }
+        else if (MenuCategoryId > 0)
+        {
+            enabled = true;
+        }
+
+        if (Reload==1)
+        {
+            //if (MenuId != null && MenuId > 0)
+            //{
+            url = "https://localhost:44300/api/CategoriesForMenu/" + MenuId;
+            await GetMenuCategories(url);
+            //}
+
+        }
+
+    }
+    private async Task GetMenuCategories(string url)
+    {
+
+        menuCategories = await Http.GetFromJsonAsync<List<MenuCategory>>(url);
+    }
+
+}

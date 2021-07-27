@@ -1,0 +1,180 @@
+﻿@inject HttpClient Http
+
+<style>
+
+    .item {
+        border-radius: 15px;
+        border: 1px solid #7C4DFF;
+        background-color: #B9A0FE;
+        color: #ffffff
+    }
+
+    .itemSelected {
+        border-radius: 15px;
+        border: 5px solid #7C4DFF;
+        background-color: #B9A0FE;
+        color: #ffffff
+    }
+
+</style>
+
+
+<div style="background-color:inherit">
+
+    <div class="d-flex">
+        <div class="p-2 border" style="text-align:center;vertical-align:middle;width:40px;height:40px;margin:10px;">
+            <a id="MenuAdd" href="" @onclick="@OnAddClick" @onclick:preventDefault class="enabled" style=""><i class="fas fa-plus"></i></a>
+        </div>
+        <div class="p-2 border" style="text-align:center;vertical-align:middle;width:40px;height:40px;margin:10px;">
+            <a id="MenuEdit" href="" @onclick="@OnEditClick" @onclick:preventDefault class="@((enabled? "enabled" : "disabled"))" style=""><i class="fas fa-edit"></i></a>
+        </div>
+        <div class="p-2 border" style="text-align:center;vertical-align:middle;width:40px;height:40px;margin:10px;">
+            <a id="MenuRemove" href="" @onclick="@OnRemoveClick" @onclick:preventDefault class="@((enabled? "enabled" : "disabled"))" style=""><i class="fas fa-minus"></i></a>
+        </div>
+        <div class="p-2 border" style="text-align:center;vertical-align:middle;width:40px;height:40px;margin:10px;">
+            <a id="MenuCopy" href="#" @onclick="@OnCopyClick" @onclick:preventDefault class="@((enabled? "enabled" : "disabled"))" style=""><i class="fas fa-paste"></i></a>
+        </div>
+        <div class="p-2" style="text-align:left;vertical-align:middle;width:200px;height:40px;margin:10px;font-size:1.5em;">
+            Menu Items
+        </div>
+    </div>
+    <div class="d-flex flex-wrap tile-container">
+
+        @foreach (var item in menuItems)
+        {
+            //var backcolor = "#ffffff";
+            //var color = "#000000";
+            //if (item.Id == MenuItemId)
+            //{
+            //    backcolor = "#088A08";
+            //    color = "#ffffff";
+            //}
+            //  background-color:@backcolor; color:@color
+
+
+            var selclass = "item";
+            if (item.Id == MenuItemId)
+            {
+                selclass = "itemSelected";
+            }
+
+
+            <div class="itemDiv p-2 @selclass" style="text-align:center;vertical-align:middle;margin:10px;">
+                <a class="btn" @onclick="@(() => OnItemClick.InvokeAsync(@item.Id))" style="width: 100px; height: 100px;">
+                    @item.Name
+                </a>
+            </div>
+        }
+    </div>
+
+    <ItemComponentNew @ref="menuItemComponentNew" OnSubmitCallback="OnAddOrEditMenuSubmitted"></ItemComponentNew>
+
+
+</div>
+
+@code {
+
+    [Parameter]
+    public int MenuId { get; set; }
+    [Parameter]
+    public int MenuCategoryId { get; set; }
+    [Parameter]
+    public int MenuItemId { get; set; }
+    [Parameter]
+    public int Reload { get; set; }
+    [Parameter]
+    public EventCallback<int> OnItemClick { get; set; }
+    [Parameter]
+    public EventCallback<int> MenuIdChanged { get; set; }
+    [Parameter]
+    public EventCallback<int> MenuCategoryIdChanged { get; set; }
+    [Parameter]
+    public EventCallback<int> MenuItemIdChanged { get; set; }
+    [Parameter]
+    public EventCallback<int> ReloadChanged { get; set; }
+
+
+    ItemComponentNew menuItemComponentNew;
+
+
+    //private const string ServiceEndpoint = "https://localhost:44300/api/MenuItemsForMenu/";
+    private string url { get; set; }
+    private List<MenuItem> menuItems = new List<MenuItem>();
+    private bool enabled = false;
+
+    public void OnAddClick()
+    {
+        MenuItem m = new MenuItem();
+        //FoodItem fi = new FoodItem();
+        //m.FoodItem = fi;
+
+        m.MenuCategoryId = MenuCategoryId;
+        menuItemComponentNew.SelFoodItemType = "";
+        menuItemComponentNew.SelFoodItem = "";
+        menuItemComponentNew.SetItem(m);
+        menuItemComponentNew.SetMode(ItemComponentNew.Modes.Create);
+        menuItemComponentNew.Show();
+    }
+    public void OnEditClick()
+    {
+        MenuItem m = menuItems.Single(s => s.Id == MenuItemId);
+        //menuItemComponentNew.SetItem(menuItems.Single(s => s.Id == MenuItemId));
+        menuItemComponentNew.SetItem(m);
+        if (m.FoodItem==null)
+        {
+            menuItemComponentNew.SelFoodItemType = "";
+            menuItemComponentNew.SelFoodItem = "";
+        }
+        else
+        {
+            menuItemComponentNew.SelFoodItemType = m.FoodItem.FoodItemType.Id.ToString();
+            menuItemComponentNew.SelFoodItem = m.FoodItem.Id.ToString();
+        }
+        menuItemComponentNew.SetMode(ItemComponentNew.Modes.Edit);
+        menuItemComponentNew.Show();
+    }
+    public async Task OnAddOrEditMenuSubmitted(EventArgs e)
+    {
+        url = "https://localhost:44300/api/MenuItemsForMenu/" + MenuCategoryId;
+        await GetMenuItems(url);
+        MenuItemId = menuItems[menuItems.Count - 1].Id;
+        //menus = await Http.GetFromJsonAsync<List<Menu>>(ServiceEndpoint);
+    }
+
+    public async Task OnRemoveClick()
+    {
+        url = "https://localhost:44300/api/MenuItems/" + MenuItemId;
+        await Http.DeleteAsync(url);
+        url = "https://localhost:44300/api/MenuItemsForMenu/" + MenuCategoryId;
+        await GetMenuItems(url);
+        MenuItemId = 0;
+    }
+
+    public void OnCopyClick()
+    {
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+
+        if (MenuItemId == 0)
+        {
+            enabled = false;
+        } else if (MenuItemId > 0)
+        {
+            enabled = true;
+        }
+
+        if (Reload == 1)
+        {
+            url = "https://localhost:44300/api/MenuItemsForMenu/" + MenuCategoryId;
+            await GetMenuItems(url);
+        }
+    }
+    private async Task GetMenuItems(string url)
+    {
+        menuItems = await Http.GetFromJsonAsync<List<MenuItem>>(url);
+    }
+
+
+}

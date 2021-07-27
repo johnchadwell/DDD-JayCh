@@ -1,0 +1,141 @@
+﻿@inject HttpClient Http
+
+@if (IsVisible)
+{
+    <style>
+        /* https://www.w3schools.com/howto/howto_css_modals.asp */
+        /* The Modal (background) */
+        .modal {
+            display: block; /* Shown by default */
+            position: fixed; /* Stay in place */
+            z-index: 1; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgb(0,0,0); /* Fallback color */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+        }
+        /* Modal Content/Box */
+        .modal-content {
+            background-color: #fefefe;
+            margin: 1% auto; /* 10% from the top and centered */
+            padding: 10px;
+            border: 1px solid #888;
+            width: 50%; /* Could be more or less, depending on screen size */
+        }
+    </style>
+    <div class="modal" tabindex="-1" style="display: block" role="dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Menu Information</h5>
+            </div>
+
+            <EditForm Model=@MenuObj OnSubmit=@OnSubmit>
+                <div class="modal-body">
+                    <table width="100%">
+                        <tr>
+                            <td>Name:</td>
+                            <td><InputText @bind-Value=MenuObj.Name style="width:100%;" /></td>
+                        </tr>
+                        <tr>
+                            <td>Start Date:</td>
+                            <td>
+                                <InputDate id="StartDate" @bind-Value=MenuObj.StartDate ParsingErrorMessage="Must be a date" />
+                                Start:<label> @MenuObj.StartDate</label> years
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>End Date:</td>
+                            <td>
+                                <InputDate id="EndDate" @bind-Value=MenuObj.EndDate ParsingErrorMessage="Must be a date" />
+                                End:<label> @MenuObj.EndDate</label> years
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <input type="submit" value="Ok" class="btn btn-primary" />
+                    <input type="button" value="Cancel" class="btn btn-secondary" @onclick="OnCancel" />
+                </div>
+            </EditForm>
+
+        </div>
+    </div>
+}
+
+@code {
+    /// <summary>
+    /// Visible flag
+    /// </summary>
+    [Parameter]
+    public bool IsVisible { get; set; } = false;
+
+    /// <summary>
+    /// Form mode - Edit or create
+    /// </summary>
+    [Parameter]
+    public Modes Mode { get; set; }
+
+    public void SetMode(Modes mode)
+    {
+        Mode = mode;
+    }
+
+    [Parameter]
+    public Menu MenuObj { get; set; }
+
+    public void SetPatient(Menu menuObj)
+    {
+        MenuObj = menuObj;
+    }
+
+    public enum Modes { Edit, Create };
+
+    public void Show()
+    {
+        IsVisible = true;
+        StateHasChanged();
+    }
+    public void Hide()
+    {
+        IsVisible = false;
+        StateHasChanged();
+    }
+
+    // Callback event to return submit information to the parent page/component
+    [Parameter]
+    public EventCallback<EventArgs> OnSubmitCallback { get; set; }
+
+
+    private async Task OnSubmit()
+    {
+        MenuObj.Active = true;
+        string ServiceEndpoint = "https://localhost:44300/api/Menus";
+
+        if (Mode.Equals(Modes.Create))
+        {
+            await Http.PostAsJsonAsync<Menu>(ServiceEndpoint, MenuObj);
+        } else
+        {
+            var url = ServiceEndpoint + "/" + MenuObj.Id;
+            await Http.PutAsJsonAsync(url, MenuObj);
+
+        }
+
+
+        //toastService.ShowInfo("Form OnSubmit called");
+        Hide();
+
+        // Call parent's event callback
+        if (OnSubmitCallback.HasDelegate)
+            OnSubmitCallback.InvokeAsync(null);
+    }
+
+    private void OnCancel()
+    {
+        //toastService.ShowInfo("Form OnCancel called");
+        Hide();
+    }
+}

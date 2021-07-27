@@ -1,0 +1,171 @@
+﻿@page "/menus2"
+@inject HttpClient Http
+@inject Services.FoodItemService FoodItemService
+
+<head>
+
+    <link rel="stylesheet" type="text/css" href="css/TileComponent.css">
+
+</head>
+
+<style>
+    body {
+        /*background-color: #80ADA0 !important;*/
+        background-color: inherit;
+    }
+
+    .container {
+        background-color: inherit;
+    }
+</style>
+
+<div class="container">
+
+
+    <MenuComponent @bind-MenuId="CurrentMenuId" OnMenuClick="ClickMenuHandler" />
+
+    <CategoryComponent @bind-MenuId="CurrentMenuId" @bind-MenuCategoryId="CurrentCategoryId" @bind-Reload="CategoryReload" OnCategoryClick="ClickCategoryHandler" />
+
+    <OptionalComponent @bind-OptionalMenuId="CurrentOptionalCatId" @bind-OptionalId="CurrentCategoryId" @bind-OptionalType="OptionalCatType" @bind-Reload="OptionalCatReload" OnOptionalCatClick="ClickOptionalCatHandler" BackColorSel="#7C4DFF" BackColorUnSel="#7C4DFF" />
+
+    <ItemComponent @bind-MenuId="CurrentMenuId" @bind-MenuCategoryId="CurrentCategoryId" @bind-MenuItemId="CurrentMenuItemId" @bind-Reload="MenuItemReload" OnItemClick="ClickItemHandler" />
+
+    <OptionalComponent @bind-OptionalMenuId="CurrentOptionalMenuId" @bind-OptionalId="CurrentMenuItemId" @bind-OptionalType="OptionalMenuType" @bind-Reload="OptionalMenuReload" OnOptionalMenuClick="ClickOptionalMenuHandler" BackColorSel="#F50057" BackColorUnSel="#F50057" />
+
+
+
+</div>
+
+
+@code {
+    private const string ServiceEndpoint = "https://localhost:44300/api/Menus";
+    private string editRowStyle = "none";
+    private string newItemName;
+
+    //private List<Menu> menus = new List<Menu>();
+    //private List<MenuCategory> menuCategories = new List<MenuCategory>();
+    //private List<MenuItem> menuItems = new List<MenuItem>();
+
+    public int CurrentMenuId { get; set; }
+    public int CurrentCategoryId { get; set; }
+    public int CurrentMenuItemId { get; set; }
+    public int CurrentOptionalCatId { get; set; }
+    public int CurrentOptionalMenuId { get; set; }
+    public int CategoryReload { get; set; }
+    public int MenuItemReload { get; set; }
+    public int OptionalCatReload { get; set; }
+    public int OptionalMenuReload { get; set; }
+    public int OptionalTypeId { get; set; }
+
+    public OptionalEnum OptionalCatType = OptionalEnum.MenuCategory;
+    public OptionalEnum OptionalMenuType = OptionalEnum.MenuItem;
+
+    public void ClickMenuHandler(int Id)
+    {
+        CurrentMenuId = Id;
+
+        CurrentCategoryId = 0;
+        CategoryReload = 1;
+
+        CurrentOptionalCatId = 0;
+        OptionalCatReload = 1;
+
+        CurrentMenuItemId = 0;
+        MenuItemReload = 1;
+
+        CurrentOptionalMenuId = 0;
+        OptionalMenuReload = 1;
+
+    }
+    public void ClickCategoryHandler(int Id)
+    {
+        CurrentCategoryId = Id;
+        CategoryReload = 0;
+
+        CurrentOptionalCatId = 0;
+        OptionalCatReload = 1;
+
+        CurrentMenuItemId = 0;
+        MenuItemReload = 1;
+
+        CurrentOptionalMenuId = 0;
+        OptionalMenuReload = 1;
+
+    }
+    public void ClickItemHandler(int Id)
+    {
+        CurrentMenuItemId = Id;
+        MenuItemReload = 0;
+
+        CurrentOptionalMenuId = 0;
+        OptionalMenuReload = 1;
+    }
+    public void ClickOptionalCatHandler(int Id)
+    {
+        CurrentOptionalCatId = Id;
+        OptionalCatReload = 0;
+    }
+    public void ClickOptionalMenuHandler(int Id)
+    {
+        CurrentOptionalMenuId = Id;
+        OptionalMenuReload = 0;
+    }
+
+    public void OnAddOrEditPatientSubmitted(EventArgs e)
+    {
+
+    }
+    protected override async Task OnInitializedAsync()
+    {
+
+        await FoodItemService.GetFoodItemTypes(Http, true);
+        await FoodItemService.GetFoodItems(Http, true);
+
+    }
+
+    //private async Task GetMenus()
+    //{
+    //    menus = await Http.GetFromJsonAsync<List<Menu>>(ServiceEndpoint);
+    //    System.Console.WriteLine("1");
+    //}
+
+
+    //private async Task GetMenus() =>
+    //    Menus = await Http.GetFromJsonAsync<List<Menu>>(ServiceEndpoint);
+
+    //private void EditItem(long id)
+    //{
+    //    editItem = todoItems.Single(i => i.Id == id);
+    //    editRowStyle = "table-row";
+    //}
+
+    //private async Task AddItem()
+    //{
+    //    var addItem = new TodoItem { Name = newItemName, IsComplete = false };
+    //    await Http.PostAsJsonAsync(ServiceEndpoint, addItem);
+    //    newItemName = string.Empty;
+    //    await GetTodoItems();
+    //    editRowStyle = "none";
+    //}
+
+    //private async Task SaveItem()
+    //{
+    //    await Http.PutAsJsonAsync($"{ServiceEndpoint}/{editItem.Id}", editItem);
+    //    await GetTodoItems();
+    //    editRowStyle = "none";
+    //}
+
+    //private async Task DeleteItem(long id)
+    //{
+    //    await Http.DeleteAsync($"{ServiceEndpoint}/{id}");
+    //    await GetTodoItems();
+    //    editRowStyle = "none";
+    //}
+
+    //private class TodoItem
+    //{
+    //    public long Id { get; set; }
+    //    public string Name { get; set; }
+    //    public bool IsComplete { get; set; }
+    //}
+}
