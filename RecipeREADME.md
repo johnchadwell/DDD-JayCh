@@ -14,13 +14,13 @@ I chose not to include anything related to the cost of inventory and how that ge
 
 In addition to creating a design model I wanted to go further and evaluate how my design would affect development activities. So I chose to build 3 projects: (1) Class library, (2) web front end and (3) backend REST API. 
 
-/Projects/RecipeClassLibrary
-/Projects/RecipeAPI1
-/Projects/RecipeBlazor1
+* /Projects/RecipeClassLibrary
+* /Projects/RecipeAPI1
+* /Projects/RecipeBlazor1
 
 ## Project Status
 
-I initially started building the front end with Razor. Eventually I switched to a Blazor front end at a late date. I wish I had done that earlier as I would have been able to completed the implementaion of the inventory adustment interface which is where inventory adjustment can be made in numerous ways: orders, deliveries, manual stock adjustment, etc... In any case I was able to setup inventory items, a menu iterface where the user can create recipes, assign food item consumption and attach to a menu system. I decided to ignore building an Order interface and instead define a simulator that would randomly generate orders. The final objective was to adjust inventory accordingly based on orders created and generate inventory orders as needed. Therefore the project is a work in progress. 
+I initially started building the front end with Razor. Eventually I switched to a Blazor front end at a late date. I wish I had done that earlier as I would have been able to completed the implementation of the inventory adustment interface which is where inventory adjustment can be made in numerous ways: orders, deliveries, manual stock adjustment, etc... In any case I was able to setup inventory items, a menu iterface where the user can create recipes, assign food item consumption and attach to a menu system. I decided to ignore building an Order interface and instead define a simulator that would randomly generate orders. The final objective was to adjust inventory accordingly based on orders created and generate inventory orders as needed. Therefore the project remains a work in progress. 
 
 ## Pull the source code
 
