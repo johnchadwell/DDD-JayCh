@@ -4,11 +4,15 @@ Domain Driven Design
 
 ## Project Description
 
-The project chosen for this class was to build a recipe inventory system for a restaurant. The objective was to design a inventory tracking system such that as orders are made inventory items are deducted based on the the recipe ingredients. When an inventory item "quantity" is reduced to a certain threshold from numerous orders then an inventory order is genreated. Once the inventory order is delivered then the quantity value is updated for that inventory item.
+The project chosen for this class was to build a recipe inventory system for a restaurant. The objective was to design a inventory tracking system such that as orders are made and inventory items are deducted based on the the recipe ingredients. When an inventory item "quantity" is reduced to a certain threshold from numerous orders then an inventory order is generated. Once the inventory order is delivered then the quantity value is updated for that inventory item.
 
 ## Design Limitations
 
+I chose not to include anything related to the cost of inventory and how that gets reflected in the order cost. Although it is closely tied to inventory it has nothing to do with tracking inventory consumption.
 
+## Objectives
+
+In addition to creating a design model I wanted to go further and evaluate how my design would affect development activities. So I chose to build a web front end a backend REST API along with the design Class library. 
 
 ## Pull the source code
 
