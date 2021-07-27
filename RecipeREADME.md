@@ -24,4 +24,4 @@ I initially started building the front end with Razor. Eventually I switched to 
 
 ## Suggestions
 
-I would like to see a Masters level class in the implementation in SOLID principles with development projects, API's and web front ends. I struggled a lot with implementing an EF code first approach for defining the database and how that gets reflected in CRUD operations in the API's. At one point I had to clean out several entities and controllers and restart my EF migrations. From that experience it seems impractical to try and manage a large database using the code first approach through all development cycles. 
+I would like to see a Masters level class in the implementation of SOLID principles with development projects, API's and web front ends. I struggled a lot with implementing an EF code first approach for defining the database and how that gets reflected in CRUD operations in the API's. At one point I had to clean out several entities and controllers and restart my EF migrations. From that experience it seems impractical to try and manage a large database using the code first approach through all development cycles. 
