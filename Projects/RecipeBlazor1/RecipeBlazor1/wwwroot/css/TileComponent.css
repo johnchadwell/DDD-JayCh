@@ -1,0 +1,63 @@
+﻿body {
+}
+.tileHdr {
+    font-size: 2rem!important;
+}
+
+.tile-container {
+    background-color: inherit;
+}
+
+.disabled {
+    pointer-events: none;
+    cursor: default !important;
+    color: #BDBDBD;
+}
+
+.enabled {
+    color: #000000
+}
+.enabled hover {
+    color: #000000;
+    cursor: pointer;
+}
+
+.menu {
+    border-radius: 5px;
+    background-color: #6330CF;
+    color: #ffffff
+}
+.menuSelected {
+    border-radius: 5px;
+    background-color: #5010EF;
+    color: #ffffff
+}
+
+.cat {
+    border-radius: 10px;
+    border: 3px solid #CDDC39;
+    background-color: #B330CF;
+    color: #ffffff
+}
+.catSelected {
+    border-radius: 10px;
+    border: 3px solid #CDDC39;
+    background-color: #C010EF;
+    color: #ffffff
+}
+
+.item {
+    border-radius: 15px;
+    border: 3px solid #CDDC39;
+    background-color: #304CCF;
+    color: #ffffff
+}
+.itemSelected {
+    border-radius: 15px;
+    border: 3px solid #CDDC39;
+    background-color: #103FEF;
+    color: #ffffff
+}
+
+
+
