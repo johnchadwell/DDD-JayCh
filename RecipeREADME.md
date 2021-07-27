@@ -2,12 +2,8 @@
 
 Domain Driven Design
 
-## Prerequisites
+## Project Description
 
-0. Install or Update [GIT](https://git-scm.com)
-1. Install or Update [Docker](https://www.docker.com/products/docker-desktop)
-2. Install or update the [.NET Core 3.1 LTS SDK](https://dotnet.microsoft.com/download/dotnet-core/3.1)
-3. Install or Update [VSCode](https://code.visualstudio.com/download) or [Visual-Studio](https://visualstudio.microsoft.com/downloads/), or your favorite code editor for **C#**
 
 ## Pull the source code
 
