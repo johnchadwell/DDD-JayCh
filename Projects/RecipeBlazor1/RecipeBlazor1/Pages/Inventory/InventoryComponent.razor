@@ -1,0 +1,230 @@
+﻿@inject HttpClient Http
+@inject Services.FoodItemService FoodItemService
+
+<style>
+
+    .foodtype {
+        border-radius: 5px;
+        border: 1px solid #9575CD;
+        background-color: #BAA3E0;
+        color: #ffffff
+    }
+
+    .foodtypeSelected {
+        border-radius: 5px;
+        border: 5px solid #9575CD;
+        background-color: #BAA3E0;
+        /*background-color: #CEBEE9;*/
+        color: #ffffff
+    }
+</style>
+
+<div style="background-color:inherit">
+
+    <EditForm Model=@FoodItemTypes>
+        <div class="modal-body">
+
+            <table>
+                <tr>
+                    <td>Select Food Item Type:</td>
+                    <td>
+                        <InputSelect id="" @bind-Value=SelFoodItemType class="form-control">
+                            @foreach (var fit in FoodItemTypes)
+                            {
+                                <option value="@fit.Id">@fit.Name</option>
+                            }
+                        </InputSelect>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="modal-footer">
+        </div>
+    </EditForm>
+
+
+
+    <div class="d-flex">
+        <div class="p-2 border" style="text-align:center;vertical-align:middle;width:40px;height:40px;margin:10px;">
+            <a id="MenuAdd" href="" @onclick="@OnAddClick" @onclick:preventDefault class="enabled" style=""><i class="fas fa-plus"></i></a>
+            @*<a id="MenuAdd" @onclick="@(() => OnMenuAddClick.InvokeAsync(1))" class="enabled" style=""><i class="fas fa-plus"></i></a>*@
+        </div>
+        <div class="p-2 border" style="text-align:center;vertical-align:middle;width:40px;height:40px;margin:10px;">
+            <a id="MenuEdit" href="" @onclick="@OnEditClick" @onclick:preventDefault class="@((enabled? "enabled" : "disabled"))" style=""><i class="fas fa-edit"></i></a>
+        </div>
+        <div class="p-2 border" style="text-align:center;vertical-align:middle;width:40px;height:40px;margin:10px;">
+            <a id="MenuRemove" href="" @onclick="@OnRemoveClick" @onclick:preventDefault class="@((enabled? "enabled" : "disabled"))" style=""><i class="fas fa-minus"></i></a>
+        </div>
+        <div class="p-2 border" style="text-align:center;vertical-align:middle;width:40px;height:40px;margin:10px;">
+            <a id="MenuCopy" href="" @onclick="@OnCopyClick" @onclick:preventDefault class="@((enabled? "enabled" : "disabled"))" style=""><i class="fas fa-paste"></i></a>
+        </div>
+        <div class="p-2" style="text-align:left;vertical-align:middle;width:250px;height:40px;margin:10px;font-size:1.5em;">
+            Inventory Items
+        </div>
+    </div>
+    <div class="tile-container d-flex flex-wrap">
+
+        @foreach (var item in items)
+        {
+            var selclass = "foodtype";
+            if (item.Id == cInventoryId)
+            {
+                selclass = "foodtypeSelected";
+            }
+            <!--div class="menuDiv p-2 border" style="text-align:center;vertical-align:middle;margin:10px; background-color:@backcolor; color:@color"-->
+
+            <div class="menuDiv p-2 @selclass" style="text-align:center;vertical-align:middle;margin:10px;">
+                <a @onclick="@(() => OnInventoryClick(@item.Id))" class="btn" style="width: 100px; height: 100px;">
+                    @item.Name
+                </a>
+            </div>
+
+        }
+
+    </div>
+
+    <InventoryComponentNew @ref="invComponentNew" @bind-InventoryId="cInventoryId" @bind-FoodItemTypeId="FoodItemTypeId" OnSubmitCallback="OnAddOrEditInventorySubmitted" ></InventoryComponentNew>
+
+</div>
+
+@code {
+
+    //[Parameter]
+    //public int TypeId { get; set; }
+
+    public int cInventoryId { get; set; }
+
+    //[Parameter]
+    //public EventCallback<int> OnTypeClick { get; set; }
+    //[Parameter]
+    //public EventCallback<int> TypeIdChanged { get; set; }
+
+    private string url { get; set; }
+
+    private const string ServiceEndpoint = "https://localhost:44300/api/InventoryItems/";
+    private List<FoodItemType> FoodItemTypes = new List<FoodItemType>();
+    private List<InventoryItem> items = new List<InventoryItem>();
+    private bool enabled = false;
+    public int FoodItemTypeId { get; set; }
+    InventoryComponentNew invComponentNew;
+
+    //public string SelFoodItemType = "3";
+
+    private string selFoodItemType;
+    public string SelFoodItemType
+    {
+        get => selFoodItemType;
+        set
+        {
+            selFoodItemType = value;
+            Console.WriteLine("selFoodItemType = " + value);
+            FoodItemTypeId = Convert.ToInt32(SelFoodItemType);
+            cInventoryId = 0;
+            UpdateDisplay();
+            UpdateItems();
+        }
+    }
+
+    public void UpdateDisplay()
+    {
+        if (cInventoryId == 0)
+        {
+            enabled = false;
+        }
+        else if (cInventoryId > 0)
+        {
+            enabled = true;
+        }
+
+    }
+    public void OnInventoryClick(int Id)
+    {
+        cInventoryId = Id;
+        UpdateDisplay();
+        StateHasChanged();
+
+    }
+
+
+    public void OnAddClick()
+    {
+        invComponentNew.NewItem();
+        invComponentNew.Show();
+
+    }
+    public void OnEditClick()
+    {
+        invComponentNew.EditItem(items.Single(s => s.Id == cInventoryId));
+        invComponentNew.Show();
+    }
+    public async Task OnAddOrEditTypeSubmitted(EventArgs e)
+    {
+        await GetItems(true);
+    }
+
+    public async Task OnRemoveClick()
+    {
+        url = ServiceEndpoint + cInventoryId;
+        await Http.DeleteAsync(url);
+
+        await UpdateItems();
+        cInventoryId = 0;
+    }
+
+    public void OnCopyClick()
+    {
+    }
+
+    public async Task OnAddOrEditInventorySubmitted(EventArgs e)
+    {
+        //url = "https://localhost:44300/api/InventoryItemsByFoodType/" + SelFoodItemType;
+        //await GetItems(url);
+        await UpdateItems();
+        //Console.WriteLine("menus.Count = " + items.Count);
+        cInventoryId = items[items.Count - 1].Id;
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        //if (cInventoryId == 0)
+        //{
+        //    enabled = false;
+        //}
+        //else if (cInventoryId > 0)
+        //{
+        //    enabled = true;
+        //}
+        //UpdateDisplay();
+
+        Console.WriteLine("OnParametersSetAsync");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Console.WriteLine("OnInitializedAsync");
+
+        await GetItems(false);
+    }
+
+    private async Task GetItems(bool force)
+    {
+        await FoodItemService.GetFoodItemTypes(Http, force);
+        FoodItemTypes = FoodItemService.FilterInvFoodItemTypes();
+        //FoodItemTypes = await Http.GetFromJsonAsync<List<FoodItemType>>("https://localhost:44300/api/InventoryItemTypes");
+        //SelFoodItemType = FoodItemTypes[0].Id.ToString();
+        ////if (FoodItemTypes.Count > 0)
+        ////{
+        ////    items = await Http.GetFromJsonAsync<List<InventoryItem>>("https://localhost:44300/api/InventoryItemsByFoodType/" + FoodItemTypes[0].Id);
+        ////} else
+        ////{
+        ////    items = new List<InventoryItem>();
+        ////}
+
+    }
+    private async Task UpdateItems()
+    {
+        items = await Http.GetFromJsonAsync<List<InventoryItem>>("https://localhost:44300/api/InventoryItemsByFoodType/" + SelFoodItemType);
+        StateHasChanged();
+
+    }
+}

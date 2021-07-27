@@ -1,0 +1,339 @@
+﻿@inject HttpClient Http
+@inject Services.FoodItemService FoodItemService
+@inject IJSRuntime JS
+
+@if (IsVisible)
+{
+    <style>
+        /* The Modal (background) */
+        .modal {
+            display: block; /* Shown by default */
+            position: fixed; /* Stay in place */
+            z-index: 1; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgb(0,0,0); /* Fallback color */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+        }
+        /* Modal Content/Box */
+        .modal-content {
+            background-color: #fefefe;
+            margin: 1% auto; /* 10% from the top and centered */
+            padding: 10px;
+            border: 1px solid #888;
+            width: 50%; /* Could be more or less, depending on screen size */
+        }
+        tr {
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+        }
+        input {
+            border: 2px solid #9575CD;
+        }
+        .input:focus {
+            border-color: #ff80ff;
+            box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.075) inset, 0px 0px 8px rgba(255, 100, 255, 0.5);
+        }
+        .form-control {
+            border: 2px solid #9575CD;
+        }
+        .form-control:focus {
+            border-color: #ff80ff;
+            box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.075) inset, 0px 0px 8px rgba(255, 100, 255, 0.5);
+        }
+        .btn-secondary {
+            color: #000;
+            background-color: #ffffff;
+            border: 2px solid #9575CD;
+        }
+        .btn-primary {
+            color: #fff;
+            background-color: #BAA3E0;
+            border: 2px solid #9575CD;
+        }
+        .modal-content {
+            background-color: #fff;
+            border: 2px solid #9575CD;
+            border-radius: .3rem;
+            outline: 0;
+        }
+            /*        table {
+            border-spacing: 15px;
+        }
+*/    </style>
+
+    <div class="modal" tabindex="-1" style="display: block" role="dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Ingredient Information</h5>
+            </div>
+
+            <EditForm Model=@ItemObj OnSubmit=@OnSubmit>
+                <div class="modal-body">
+                    <table width="100%">
+                        <tr>
+                            <td>Name:</td>
+                            <td class="tbl-cntrl"><InputText  @bind-Value=ItemObj.Name style="width:100%;" class="form-control"/></td>
+                        </tr>
+                        <tr>
+                            <td>Quantity:</td>
+                            <td class="tbl-cntrl"><InputNumber @bind-Value=ItemObj.Quantity style="width:100%;" class="form-control"/></td>
+                        </tr>
+                        <tr>
+                            <td>Reorder Threshold:</td>
+                            <td class="tbl-cntrl"><InputNumber @bind-Value=ItemObj.ReorderThreshold style="width:100%;" class="form-control"/></td>
+                        </tr>
+                        <tr>
+                            <td>Reorder Quantity:</td>
+                            <td class="tbl-cntrl"><InputNumber @bind-Value=ItemObj.ReorderQuantity style="width:100%;" class="form-control"/></td>
+                        </tr>
+                        <tr>
+                            <td>Yield:</td>
+                            <td class="tbl-cntrl"><InputNumber @bind-Value=ItemObj.Yield style="width:100%;" class="form-control"/></td>
+                        </tr>
+                        <tr>
+                            <td>State:</td>
+                            <td class="tbl-cntrl">
+                                <InputSelect @bind-Value=SelCondition class="form-control">
+                                    @foreach (var si in ConditionTypes)
+                                        {
+                                        <option value="@si.Id">@si.Name</option>
+                                        }
+                                </InputSelect>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Unit:</td>
+                            <td class="tbl-cntrl">
+                                <InputSelect @bind-Value=SelUnit class="form-control">
+                                    @foreach (var ui in UnitTypes)
+                                        {
+                                        <option value="@ui.Id">@ui.Name</option>
+                                        }
+                                </InputSelect>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Food Item:</td>
+                            <td class="tbl-cntrl">
+                                <InputSelect id="FoodItem" @bind-Value=SelFoodItemType class="form-control">
+                                    @foreach (var fi in FoodItemTypes)
+                                        {
+                                        <option value="@fi.Id">@fi.Name</option>
+                                        }
+                                </InputSelect>
+                            </td>
+                        </tr>
+
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <input type="submit" value="Ok" class="btn btn-primary" />
+                    <input type="button" value="Cancel" class="btn btn-secondary" @onclick="OnCancel" />
+                </div>
+            </EditForm>
+
+        </div>
+    </div>
+}
+
+@code {
+
+    //[Parameter]
+    //public List<FoodItemType> FoodItemTypes { get; set; }
+
+    /// <summary>
+    /// Visible flag
+    /// </summary>
+    [Parameter]
+    public bool IsVisible { get; set; } = false;
+
+    [Parameter]
+    public int InventoryId { get; set; }
+    [Parameter]
+    public int FoodItemTypeId { get; set; }
+
+    //[Parameter]
+    //public int Reload { get; set; }
+
+    [Parameter]
+    public EventCallback<int> InventoryIdChanged { get; set; }
+    [Parameter]
+    public EventCallback<int> FoodItemTypeIdChanged { get; set; }
+
+
+    //[Parameter]
+    //public EventCallback<int> ReloadChanged { get; set; }
+
+    //[Parameter]
+    //public EventCallback<int> OnReloadClick { get; set; }
+
+    /// <summary>
+    /// Form mode - Edit or create
+    /// </summary>
+    [Parameter]
+    public Modes Mode { get; set; }
+    public void SetMode(Modes mode)
+    {
+        Mode = mode;
+    }
+
+    private string selFoodItemType;
+    public string SelFoodItemType
+    {
+        get => selFoodItemType;
+        set
+        {
+            selFoodItemType = value;
+        }
+    }
+    private string selCondition;
+    public string SelCondition
+    {
+        get => selCondition;
+        set
+        {
+            selCondition = value;
+        }
+    }
+    private string selUnit;
+    public string SelUnit
+    {
+        get => selUnit;
+        set
+        {
+            selUnit = value;
+        }
+    }
+
+    /// <summary>
+    /// object bound to the form
+    /// </summary>
+    [Parameter]
+    public InventoryItem ItemObj { get; set; }
+    public List<InventoryItem> InventoryItems { get; set; }
+    public List<InventoryConditionType> ConditionTypes { get; set; }
+    public List<InventoryUnitType> UnitTypes { get; set; }
+    public List<FoodItemType> FoodItemTypes { get; set; }
+
+
+
+    public void NewItem()
+    {
+        Mode = Modes.Create;
+
+        //SelFoodItemType = FoodItemTypes[0].Id.ToString();
+        SelFoodItemType = FoodItemTypeId.ToString();
+        SelUnit = UnitTypes[0].Id.ToString();
+        SelCondition = ConditionTypes[0].Id.ToString();
+
+        InventoryItem i = new InventoryItem();
+
+        InventoryItem inv = new InventoryItem();
+        FoodItemType fi = new FoodItemType();
+        InventoryConditionType cnd = new InventoryConditionType();
+        InventoryUnitType unit = new InventoryUnitType();
+        i.FoodItemType = fi;
+        i.FoodItemType.Id = FoodItemTypeId;
+        i.condition = cnd;
+        i.condition.Id = ConditionTypes[0].Id;
+        i.Unit = unit;
+        i.Unit.Id = UnitTypes[0].Id;
+
+        ItemObj = i;
+    }
+    public void EditItem(InventoryItem itemObj)
+    {
+        Mode = Modes.Edit;
+
+        SelFoodItemType = itemObj.FoodItemType.Id.ToString();
+        SelUnit = itemObj.Unit.Id.ToString();
+        SelCondition = itemObj.condition.Id.ToString();
+
+        ItemObj = itemObj;
+    }
+
+    public enum Modes { Edit, Create };
+
+    public async Task Show()
+    {
+        await GetTypes();
+        IsVisible = true;
+        StateHasChanged();
+    }
+    public void Hide()
+    {
+        IsVisible = false;
+        StateHasChanged();
+    }
+
+    // Callback event to return submit information to the parent page/component
+    [Parameter]
+    public EventCallback<EventArgs> OnSubmitCallback { get; set; }
+
+
+    private async Task OnSubmit()
+    {
+        string ServiceEndpoint = "https://localhost:44300/api/InventoryItems";
+
+        if (Mode.Equals(Modes.Create))
+        {
+
+            ItemObj.FoodItemType.Id = Convert.ToInt32(SelFoodItemType);
+            ItemObj.Unit.Id = Convert.ToInt32(SelUnit);
+            ItemObj.condition.Id = Convert.ToInt32(SelCondition);
+
+            await Http.PostAsJsonAsync<InventoryItem>(ServiceEndpoint, ItemObj);
+        }
+        else
+        {
+            if (SelUnit == null) SelUnit = UnitTypes[0].Id.ToString();
+            if (SelCondition == null) SelCondition = ConditionTypes[0].Id.ToString();
+
+            ItemObj.FoodItemType.Id = Convert.ToInt32(SelFoodItemType);
+            ItemObj.Unit.Id = Convert.ToInt32(SelUnit);
+            ItemObj.condition.Id = Convert.ToInt32(SelCondition);
+
+            var url = ServiceEndpoint + "/" + ItemObj.Id;
+            await Http.PutAsJsonAsync(url, ItemObj);
+
+        }
+        //System.Console.WriteLine("1");
+
+
+        //toastService.ShowInfo("Form OnSubmit called");
+        Hide();
+
+        // Call parent's event callback
+        if (OnSubmitCallback.HasDelegate)
+            OnSubmitCallback.InvokeAsync(null);
+    }
+
+    private void OnCancel()
+    {
+        //toastService.ShowInfo("Form OnCancel called");
+        Hide();
+    }
+    protected override async Task OnParametersSetAsync()
+    {
+        Console.WriteLine("Category.OnParametersSetAsync");
+
+    }
+
+    protected override async Task OnInitializedAsync() => await GetTypes();
+
+    private async Task GetTypes()
+    {
+        //InventoryItems = await Http.GetFromJsonAsync<List<InventoryItem>>("https://localhost:44300/api/InventoryItems");
+        ConditionTypes = await Http.GetFromJsonAsync<List<InventoryConditionType>>("https://localhost:44300/api/InventoryConditionTypes");
+        UnitTypes = await Http.GetFromJsonAsync<List<InventoryUnitType>>("https://localhost:44300/api/InventoryUnitTypes");
+        await FoodItemService.GetFoodItemTypes(Http, false);
+        FoodItemTypes = FoodItemService.FilterInvFoodItemTypes();
+        //FoodItemTypes = await Http.GetFromJsonAsync<List<FoodItemType>>("https://localhost:44300/api/InventoryItemTypes");
+
+    }
+
+}
