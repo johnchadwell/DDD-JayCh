@@ -12,7 +12,7 @@ I chose not to include anything related to the cost of inventory and how that ge
 
 ## Objectives
 
-In addition to creating a design model I wanted to go further and evaluate how my design would affect development activities. So I chose to build 3 projects: web front end, backend REST API and a Class library. 
+In addition to creating a design model I wanted to go further and evaluate how my design would affect development activities. So I chose to build 3 projects: (1) Class library, (2) web front end and (3) backend REST API. 
 
 ## Pull the source code
 
