@@ -1,0 +1,331 @@
+﻿@page "/ProcessOrders"
+@inject HttpClient Http
+@inject IJSRuntime JS
+
+<style>
+
+    td {
+        padding-right: 20px;
+    }
+
+</style>
+
+<div class="container">
+
+
+    <h4>Order Simulator</h4>
+
+    <EditForm Model=@orderProcess OnSubmit=@OnSubmit>
+        <div class="modal-body">
+            <table>
+                <tr>
+                    <td>Count of unprocessed Orders:</td>
+                    <td>
+                        @orderProcess.count
+                    </td>
+                    @if (isVisible)
+                    {
+                        <td>
+                            <input type="submit" value="Process Orders?" class="btn btn-primary" />
+                        </td>
+                    }
+                </tr>
+            </table>
+        </div>
+    </EditForm>
+
+
+</div>
+
+
+@code {
+
+        // No Time element
+        // all orders are tracked per day
+        // for simplicity all active menus are available all day
+
+    private OrderProcess orderProcess { get; set; }
+    private bool isVisible { get; set; }
+
+    //private int count { get; set; }
+
+    //private OrderDate orderDate { get; set; }
+    //private List<Menu> items { get; set; }
+
+    //private int NbrOfOrdersToday { get; set; }
+    //private Random rnNbrOfOrdersToday { get; set; }
+
+    //private Random rnNextMenu { get; set; }
+    //private int NextMenu { get; set; }
+
+    //private Random rnNextCat { get; set; }
+    //private int NextCat { get; set; }
+
+    //private Random rnNextCatOpt { get; set; }
+    //private int NextCatOpt { get; set; }
+
+    //private Random rnNextItem { get; set; }
+    //private int NextItem { get; set; }
+
+    //private Random rnNextItemOpt { get; set; }
+    //private int NextItemOpt { get; set; }
+
+    //private async Task GenerateOrders()
+    //{
+    //    rnNbrOfOrdersToday = new System.Random(Guid.NewGuid().GetHashCode());
+    //    int orderID = 0;
+
+    //    System.TimeSpan diffResult = orderDate.EndDate.Subtract(orderDate.StartDate);
+    //    for (int i=0; i<diffResult.TotalDays; i++)
+    //    {
+    //        Console.WriteLine(orderDate.StartDate.AddDays(i).ToString());
+    //        NbrOfOrdersToday = rnNbrOfOrdersToday.Next(orderDate.MinimumDailyOrders, orderDate.MaximumDailyOrders);
+
+    //        rnNextMenu = new System.Random(Guid.NewGuid().GetHashCode());
+    //        for (int j = 0; j <= items.Count-1; j++)
+    //        {
+    //            Console.WriteLine("Menus: " + items[j].Name);
+    //        }
+    //        Console.WriteLine("Number of Orders to generate: " + NbrOfOrdersToday);
+    //        for (int j = 1; j <= NbrOfOrdersToday; j++)
+    //        {
+    //            //Console.WriteLine("Menu Count: " + items.Count);
+    //            NextMenu = rnNextMenu.Next(0, items.Count);
+    //            if (NextMenu == 4)
+    //            {
+    //                Console.WriteLine("4" + items[4].Name);
+    //            }
+
+    //            // check for MenuCategory
+    //            if (items[NextMenu].MenuCategories != null && items[NextMenu].MenuCategories.Count > 0)
+    //            {
+
+    //                rnNextCat = new System.Random(Guid.NewGuid().GetHashCode());
+    //                NextCat = rnNextCat.Next(0, items[NextMenu].MenuCategories.Count);
+
+    //                // check for MenuCategory.MenuItem
+    //                if (items[NextMenu].MenuCategories[NextCat].MenuItems != null && items[NextMenu].MenuCategories[NextCat].MenuItems.Count > 0)
+    //                {
+    //                    Console.WriteLine("Menu Count: " + items.Count);
+    //                    Console.WriteLine("Menu Count NextMenu: " + NextMenu);
+    //                    Console.WriteLine("items[NextMenu].Name: " + items[NextMenu].Name);
+    //                    Console.WriteLine("items[NextMenu].MenuCategories.Count: " + items[NextMenu].MenuCategories.Count);
+    //                    Console.WriteLine("NextCat: " + NextCat);
+    //                    Console.WriteLine("items[NextMenu].MenuCategories[NextCat].Name: " + items[NextMenu].MenuCategories[NextCat].Name);
+
+    //                    rnNextItem = new System.Random(Guid.NewGuid().GetHashCode());
+    //                    Console.WriteLine("items[NextMenu].MenuCategories[NextCat].MenuItems.Count: " + items[NextMenu].MenuCategories[NextCat].MenuItems.Count);
+    //                    NextItem = rnNextItem.Next(0, items[NextMenu].MenuCategories[NextCat].MenuItems.Count);
+    //                    Console.WriteLine("NextItem: " + NextItem);
+    //                    Console.WriteLine("items[NextMenu].MenuCategories[NextCat].MenuItems[NextItem].Name: " + items[NextMenu].MenuCategories[NextCat].MenuItems[NextItem].Name);
+    //                    if (items[NextMenu].MenuCategories[NextCat].MenuItems[NextItem].FoodItem == null)
+    //                    {
+    //                        // MEAL ORDER
+    //                        MealOrderItem oi = new MealOrderItem();
+    //                        oi.MenuItem = items[NextMenu].MenuCategories[NextCat].MenuItems[NextItem];
+    //                        oi.OrderItemStatus = OrderItemStatus.Delivered;
+
+    //                        //System.Net.Http.HttpResponseMessage r = await Http.PostAsJsonAsync<MealOrderItem>("https://localhost:44300/api/MealOrderItems/", oi);
+    //                        var r = await Http.PostAsJsonAsync<MealOrderItem>("https://localhost:44300/api/MealOrderItems/", oi);
+    //                        var content = await r.Content.ReadFromJsonAsync<MealOrderItem>();
+    //                        orderID = content.Id;
+
+    //                        Console.WriteLine("Order Status Return: " + orderID);
+
+
+
+    //                    }
+    //                    else
+    //                    {
+    //                        Console.WriteLine("items[NextMenu].MenuCategories[NextCat].MenuItems[NextItem].FoodItem.Name: " + items[NextMenu].MenuCategories[NextCat].MenuItems[NextItem].FoodItem.Name);
+    //                        if (items[NextMenu].Name == "Drinks")
+    //                        {
+    //                            Console.WriteLine("Drinks");
+    //                        }
+    //                        if (items[NextMenu].Name == "Drinks")
+    //                        {
+    //                            // Beverage ORDER
+    //                            BeverageOrderItem oi = new BeverageOrderItem();
+    //                            oi.MenuItem = items[NextMenu].MenuCategories[NextCat].MenuItems[NextItem];
+    //                            oi.OrderItemStatus = OrderItemStatus.Delivered;
+
+    //                            var r = await Http.PostAsJsonAsync<BeverageOrderItem>("https://localhost:44300/api/BeverageOrderItems/", oi);
+    //                            var content = await r.Content.ReadFromJsonAsync<BeverageOrderItem>();
+    //                            orderID = content.Id;
+    //                            Console.WriteLine("Order Status Return: " + orderID);
+
+    //                        }
+    //                        else
+    //                        {
+    //                            // ALACARTE ORDER
+    //                            AlaCarteOrderItem oi = new AlaCarteOrderItem();
+    //                            oi.MenuItem = items[NextMenu].MenuCategories[NextCat].MenuItems[NextItem];
+    //                            oi.OrderItemStatus = OrderItemStatus.Delivered;
+
+    //                            var r = await Http.PostAsJsonAsync<AlaCarteOrderItem>("https://localhost:44300/api/AlaCarteOrderItems/", oi);
+    //                            var content = await r.Content.ReadFromJsonAsync<AlaCarteOrderItem>();
+    //                            orderID = content.Id;
+    //                            Console.WriteLine("Order Status Return: " + orderID);
+
+    //                        }
+
+    //                    }
+    //                    // store new OrderID
+
+    //                    // Randomize Ingredients?
+
+    //                    Console.WriteLine("OptionalMenuItems.orderID: " + orderID);
+
+    //                    // check for MenuCategory.MenuItem.OptionalMenuItem
+    //                    if (items[NextMenu].MenuCategories[NextCat].MenuItems[NextItem].OptionalMenuItems != null && items[NextMenu].MenuCategories[NextCat].MenuItems[NextItem].OptionalMenuItems.Count > 0)
+    //                    {
+
+
+    //                        var optByGroup = items[NextMenu].MenuCategories[NextCat].MenuItems[NextItem].OptionalMenuItems.GroupBy(g => g.GroupName);
+    //                        foreach (var group in optByGroup)
+    //                        {
+
+    //                            Console.WriteLine("optByGroup: " + group);
+    //                            List<OptionalMenuItem> opl = group.ToList();
+    //                            rnNextItemOpt = new System.Random(Guid.NewGuid().GetHashCode());
+    //                            Console.WriteLine("ItemOpts.Count(): " + opl.Count());
+    //                            NextItemOpt = rnNextItemOpt.Next(0, opl.Count());
+    //                            Console.WriteLine("NextItemOpt: " + NextItemOpt);
+    //                            //if (opl[NextItemOpt].FoodItem != null)
+    //                            Console.WriteLine("opl[NextCatOpt].FoodItem.Name: " + opl[NextItemOpt].FoodItem.Name);
+
+    //                            // Optional Order Item
+    //                            // reference MenuItem order id
+    //                            OptionalOrderItem oi = new OptionalOrderItem();
+    //                            oi.OptionalMenuItem = opl[NextItemOpt];
+    //                            oi.OrderItemStatus = OrderItemStatus.Delivered;
+
+    //                            OrderItem related = new OrderItem();
+    //                            related.Id = orderID;
+    //                            oi.Related = related;
+
+
+    //                            var r = await Http.PostAsJsonAsync<OptionalOrderItem>("https://localhost:44300/api/OptionalOrderItems/", oi);
+    //                            var content = await r.Content.ReadFromJsonAsync<OptionalOrderItem>();
+
+    //                        }
+    //                    }
+
+    //                }
+
+
+    //                // check for MenuCategory.OptionalMenuItem
+    //                if (items[NextMenu].MenuCategories[NextCat].OptionalMenuItems != null && items[NextMenu].MenuCategories[NextCat].OptionalMenuItems.Count > 0)
+    //                {
+
+
+    //                    var optByGroup = items[NextMenu].MenuCategories[NextCat].OptionalMenuItems.GroupBy(g => g.GroupName);
+    //                    foreach (var group in optByGroup)
+    //                    {
+
+    //                        List<OptionalMenuItem> opl = group.ToList();
+    //                        rnNextCatOpt = new System.Random(Guid.NewGuid().GetHashCode());
+    //                        Console.WriteLine("CatOpt.Count(): " + group + "; " + opl.Count());
+    //                        NextCatOpt = rnNextCatOpt.Next(0, opl.Count());
+    //                        Console.WriteLine("NextCatOpt: " + NextCatOpt);
+    //                        //if (opl[NextCatOpt].FoodItem != null)
+    //                        Console.WriteLine("opl[NextCatOpt].FoodItem.Name: " + opl[NextCatOpt].FoodItem.Name);
+
+    //                        // Optional Order Item
+    //                        // reference MenuItem order id
+
+    //                    }
+    //                }
+
+    //            }
+    //        }
+
+    //    }
+
+    //}
+
+    private async Task OnSubmit()
+    {
+        //bool valid = true;
+        //if (orderDate.EndDate > orderDate.StartDate)
+        //{
+        //    Console.WriteLine("StartDate = " + orderDate.StartDate.ToString());
+        //    Console.WriteLine("EndDate = " + orderDate.EndDate.ToString());
+        //}
+        //else
+        //{
+        //    await JS.InvokeVoidAsync("alert", "Start Date must be less than End Date"); // Alert
+        //    valid = false;
+
+        //}
+        //if (orderDate.MaximumDailyOrders > orderDate.MinimumDailyOrders && orderDate.MinimumDailyOrders > 0 && orderDate.MaximumDailyOrders > 0)
+        //{
+        //    Console.WriteLine("MinimumDailyOrders = " + orderDate.MinimumDailyOrders.ToString());
+        //    Console.WriteLine("MaximumDailyOrders = " + orderDate.MaximumDailyOrders.ToString());
+        //}
+        //else
+        //{
+        //    await JS.InvokeVoidAsync("alert", "Maximun Daily Orders must be greater than than Minimum Daily Orders"); // Alert
+        //    valid = false;
+
+        //}
+
+        ProcessAllOrders();
+
+    }
+    private async Task ProcessAllOrders()
+    {
+
+        string url = "https://localhost:44300/api/OrderItemsToProcess";
+        List<OrderItem> items = await Http.GetFromJsonAsync<List<OrderItem>>(url);
+        for (int j = 0; j <= items.Count - 1; j++)
+        {
+            //
+
+
+        }
+
+
+
+        //if (orderProcess.count > 0)
+        //{
+        //    isVisible = true;
+        //    StateHasChanged();
+
+        //}
+        //else
+        //{
+        //    isVisible = false;
+        //}
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        orderProcess = new OrderProcess();
+        await GetCountOfOrdersUnprocessed();
+    }
+
+    private async Task GetCountOfOrdersUnprocessed()
+    {
+        string url = "https://localhost:44300/api/OrderItemsToProcessCount";
+
+        HttpResponseMessage response = await Http.GetAsync(url);
+        response.EnsureSuccessStatusCode();
+        string responseBody = await response.Content.ReadAsStringAsync();
+
+        orderProcess.count = Convert.ToInt32(responseBody);
+        Console.WriteLine("orderProcess.count = " + orderProcess.count);
+        if (orderProcess.count > 0)
+        {
+            isVisible = true;
+        }
+        else
+        {
+            isVisible = false;
+        }
+
+
+    }
+
+
+}
