@@ -1,0 +1,138 @@
+﻿@inject HttpClient Http
+@inject Services.FoodItemService FoodItemService
+
+<style>
+
+    .foodtype {
+        border-radius: 5px;
+        border: 1px solid #9575CD;
+        background-color: #BAA3E0;
+        color: #ffffff
+    }
+
+    .foodtypeSelected {
+        border-radius: 5px;
+        border: 5px solid #9575CD;
+        background-color: #BAA3E0;
+        /*background-color: #CEBEE9;*/
+        color: #ffffff
+    }
+</style>
+
+<div style="background-color:inherit">
+
+    <div class="d-flex">
+        <div class="p-2 border" style="text-align:center;vertical-align:middle;width:40px;height:40px;margin:10px;">
+            <a id="MenuAdd" href="" @onclick="@OnMenuAddClick" @onclick:preventDefault class="enabled" style=""><i class="fas fa-plus"></i></a>
+            @*<a id="MenuAdd" @onclick="@(() => OnMenuAddClick.InvokeAsync(1))" class="enabled" style=""><i class="fas fa-plus"></i></a>*@
+        </div>
+        <div class="p-2 border" style="text-align:center;vertical-align:middle;width:40px;height:40px;margin:10px;">
+            <a id="MenuEdit" href="" @onclick="@OnMenuEditClick" @onclick:preventDefault class="@((enabled? "enabled" : "disabled"))" style=""><i class="fas fa-edit"></i></a>
+        </div>
+        <div class="p-2 border" style="text-align:center;vertical-align:middle;width:40px;height:40px;margin:10px;">
+            <a id="MenuRemove" href="" @onclick="@OnMenuRemoveClick" @onclick:preventDefault class="@((enabled? "enabled" : "disabled"))" style=""><i class="fas fa-minus"></i></a>
+        </div>
+        <div class="p-2 border" style="text-align:center;vertical-align:middle;width:40px;height:40px;margin:10px;">
+            <a id="MenuCopy" href="" @onclick="@OnCopyClick" @onclick:preventDefault class="@((enabled? "enabled" : "disabled"))" style=""><i class="fas fa-paste"></i></a>
+        </div>
+        <div class="p-2" style="text-align:left;vertical-align:middle;width:200px;height:40px;margin:10px;font-size:1.5em;">
+            Food Types
+        </div>
+    </div>
+    <div class="tile-container d-flex flex-wrap">
+
+        @foreach (var item in items)
+        {
+            var selclass = "foodtype";
+            if (item.Id == TypeId)
+            {
+                selclass = "foodtypeSelected";
+            }
+            <!--div class="menuDiv p-2 border" style="text-align:center;vertical-align:middle;margin:10px; background-color:@backcolor; color:@color"-->
+
+            <div class="menuDiv p-2 @selclass" style="text-align:center;vertical-align:middle;margin:10px;">
+                <a @onclick="@(() => OnTypeClick.InvokeAsync(@item.Id))" class="btn" style="width: 100px; height: 100px;">
+                    @item.Name
+                </a>
+            </div>
+
+        }
+
+    </div>
+
+    <FoodItemTypeComponentNew @ref="typeComponentNew" OnSubmitCallback="OnAddOrEditTypeSubmitted"></FoodItemTypeComponentNew>
+
+
+</div>
+
+@code {
+    [Parameter]
+    public int TypeId { get; set; }
+    [Parameter]
+    public EventCallback<int> OnTypeClick { get; set; }
+    [Parameter]
+    public EventCallback<int> TypeIdChanged { get; set; }
+    FoodItemTypeComponentNew typeComponentNew;
+
+    private const string ServiceEndpoint = "https://localhost:44300/api/FoodItemTypes";
+    private List<FoodItemType> items = new List<FoodItemType>();
+    private bool enabled = false;
+
+    public void OnMenuAddClick()
+    {
+        typeComponentNew.SetItem(new FoodItemType());
+        typeComponentNew.SetMode(FoodItemTypeComponentNew.Modes.Create);
+        typeComponentNew.Show();
+    }
+    public void OnMenuEditClick()
+    {
+        typeComponentNew.SetItem(items.Single(s => s.Id == TypeId));
+        typeComponentNew.SetMode(FoodItemTypeComponentNew.Modes.Edit);
+        typeComponentNew.Show();
+    }
+    public async Task OnAddOrEditTypeSubmitted(EventArgs e)
+    {
+        await GetItems(true);
+        TypeId = items[items.Count - 1].Id;
+        await OnTypeClick.InvokeAsync(TypeId);
+        //menus = await Http.GetFromJsonAsync<List<Menu>>(ServiceEndpoint);
+    }
+
+    public async Task OnMenuRemoveClick()
+    {
+        await FoodItemService.DeleteFoodItemTypes(Http, TypeId);
+        //var url = ServiceEndpoint + "/" + TypeId;
+        //await Http.DeleteAsync(url);
+        await GetItems(true);
+        TypeId = 0;
+    }
+
+    public void OnCopyClick()
+    {
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (TypeId == 0)
+        {
+            enabled = false;
+        }
+        else if (TypeId > 0)
+        {
+            enabled = true;
+        }
+
+    }
+
+    protected override async Task OnInitializedAsync() {
+        await GetItems(false);
+    }
+
+    private async Task GetItems(bool force)
+    {
+        //items = await Http.GetFromJsonAsync<List<FoodItemType>>(ServiceEndpoint);
+        items = await FoodItemService.GetFoodItemTypes(Http, force);
+
+    }
+
+}

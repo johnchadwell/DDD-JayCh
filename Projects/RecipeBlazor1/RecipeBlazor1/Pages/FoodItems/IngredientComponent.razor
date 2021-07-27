@@ -1,0 +1,301 @@
+﻿@inject HttpClient Http
+@inject Services.FoodItemService FoodItemService
+@inject IJSRuntime JS
+
+<style>
+
+    .header {
+        border-top: 1px solid #8A8A8A;
+        background-color: #ffffff;
+        color: #000000
+    }
+
+    .ing {
+        border: 0px;
+        border-radius: 0px;
+        border-top: 3px solid #7AD6BE;
+        background-color: #ffffff;
+        background-image: linear-gradient(to right, rgba(256,0,126,1), rgba(256,0,126,.5));
+        color: #ffffff
+    }
+
+
+    .ingSelected {
+        border: 0px;
+        border-radius: 0px;
+        border-top: 3px solid #7AD6BE;
+        background-color: #7C4DFF;
+        background-image: linear-gradient(to right, rgba(256,0,126,0), rgba(256,0,126,1));
+        color: #ffffff
+    }
+</style>
+
+<div style="background-color:inherit">
+
+    <div class="d-flex">
+
+
+        <div class="p-2 border" style="text-align:center;vertical-align:middle;width:40px;height:40px;margin:10px;">
+            <a id="MenuAdd" @onclick="@OnAddClick" class="enabled"><i class="fas fa-plus"></i></a>
+        </div>
+        <div class="p-2 border" style="text-align:center;vertical-align:middle;width:40px;height:40px;margin:10px;">
+            <a id="MenuEdit" href="" @onclick="@OnEditClick" @onclick:preventDefault class="@((enabled ? "enabled" : "disabled"))"><i class="fas fa-edit"></i></a>
+        </div>
+        <div class="p-2 border" style="text-align:center;vertical-align:middle;width:40px;height:40px;margin:10px;">
+            <a id="MenuRemove" href="" @onclick="@OnRemoveClick" @onclick:preventDefault class="@((enabled ? "enabled" : "disabled"))"><i class="fas fa-minus"></i></a>
+        </div>
+        <div class="p-2 border" style="text-align:center;vertical-align:middle;width:40px;height:40px;margin:10px;">
+            <a id="MenuCopy" href="#" @onclick="@OnCopyClick" @onclick:preventDefault class="@((enabled ? "enabled" : "disabled"))"><i class="fas fa-paste"></i></a>
+        </div>
+        <div class="p-2" style="text-align:left;vertical-align:middle;width:300px;height:40px;margin:10px;font-size:1.5em;">
+            Ingredients Items
+        </div>
+    </div>
+
+    <div class="tile-container">
+        <div class="p-2 header" style="vertical-align:middle;margin:10px; width:100%; ">
+            <div style="display:inline-block; width:100px">Type</div>
+            <div style="display:inline-block; width:200px">Name</div>
+            <div style="display:inline-block; width:75px">Amount</div>
+            <div style="display:inline-block; width:100px">Unit</div>
+            <div style="display:inline-block; width:100px">State</div>
+            <div style="display:inline-block; width:75px">Cost</div>
+            <div style="display:inline-block; width:100px">% Inv Unit</div>
+            <div style="display:inline-block; width:100px">Inv Unit</div>
+            @*<div style="display:inline-block; width:100px">Inv Unit Type</div>*@
+
+        </div>
+
+
+        @foreach (var item in items)
+        {
+            //var backcolor = "#ffffff";
+            //var color = "#000000";
+            //if (item.Id == MenuCategoryId)
+            //{
+            //    backcolor = "#0000FF";
+            //    color = "#ffffff";
+            //}
+            //  background-color:@backcolor; color:@color
+
+
+            var selclass = "ing";
+            if (item.Id == IngredientId)
+            {
+                selclass = "ingSelected";
+            }
+            var itemname = "";
+            var amount = "";
+            var state = "";
+            var unit = "";
+            var cost = "";
+            var invunit = "";
+            var invtype = "";
+
+            if (@item.IngredientItemType.Name.Equals("Inventory"))
+            {
+                itemname = @item.InventoryItem.Name;
+                amount = @item.Amount.ToString();
+                unit = @item.Unit.Name;
+                state = @item.State.Name;
+                cost = @item.Cost.ToString();
+                invunit = @item.InventoryUnitCount.ToString();
+                invtype = @item.InventoryItem.Unit.Name;
+            }
+            else
+            {
+                itemname = @item.ChildFoodItemName;
+                amount = "";
+                state = "";
+                unit = "";
+                cost = "";
+                invunit = "";
+                invtype = "";
+            }
+
+            <div class="p-2 @selclass" style="vertical-align:middle;margin:10px;">
+                <a @onclick="@(() => OnIngredientClick.InvokeAsync(@item.Id))" class="btn" style="width: 100%; height: 25px; text-align:start; vertical-align:middle; margin:0px; padding:0px;">
+
+                    <div style="display:inline-block; width:100px">@item.IngredientItemType.Name</div>
+                    <div style="display:inline-block; width:200px">@itemname</div>
+                    <div style="display:inline-block; width:75px">@amount</div>
+                    <div style="display:inline-block; width:100px">@unit</div>
+                    <div style="display:inline-block; width:100px">@state</div>
+                    <div style="display:inline-block; width:75px">@cost</div>
+                    <div style="display:inline-block; width:100px">@invunit</div>
+                    <div style="display:inline-block; width:100px">@invtype</div>
+
+
+                </a>
+
+            </div>
+        }
+    </div>
+
+    <IngredientComponentNew @ref="ingredientComponentNew" OnSubmitCallback="OnAddOrEditIngredientSubmitted" @bind-Reload="DialogReload" OnReloadClick="ClickDialogReloadHandler"></IngredientComponentNew>
+
+</div>
+
+@code {
+    [Parameter]
+    public int ItemId { get; set; }
+    [Parameter]
+    public int TypeId { get; set; }
+    [Parameter]
+    public int IngredientId { get; set; }
+    [Parameter]
+    public int Reload { get; set; }
+    [Parameter]
+    public EventCallback<int> OnIngredientClick { get; set; }
+    [Parameter]
+    public EventCallback<int> ItemIdChanged { get; set; }
+    [Parameter]
+    public EventCallback<int> TypeIdChanged { get; set; }
+    [Parameter]
+    public EventCallback<int> IngredientIdChanged { get; set; }
+    [Parameter]
+    public EventCallback<int> ReloadChanged { get; set; }
+
+    public int DialogReload { get; set; } = 0;
+
+    public List<FoodItemType> FoodItemTypes { get; set; }
+
+    public void ClickDialogReloadHandler(int Id)
+    {
+        DialogReload++;
+    }
+
+
+    IngredientComponentNew ingredientComponentNew;
+    string ServiceEndpoint = "https://localhost:44300/api/IngredientItems/";
+
+
+    private string url { get; set; }
+    private List<IngredientItem> items = new List<IngredientItem>();
+    private bool enabled = false;
+
+
+    public async Task OnAddClick()
+    {
+        if (TypeId == 0)
+        {
+            await JS.InvokeVoidAsync("alert", "Please Select a Food Type."); // Alert
+
+        }
+        else
+        if (ItemId == 0)
+        {
+            await JS.InvokeVoidAsync("alert", "Please Select a Food."); // Alert
+
+        }
+        else
+        {
+            await GetTypes();
+            //IngredientItem i = new IngredientItem();
+            //InventoryItem inv = new InventoryItem();
+            //IngredientItemType ingType = new IngredientItemType();
+            //IngredientStateType state = new IngredientStateType();
+            //IngredientUnitType unit = new IngredientUnitType();
+            //i.InventoryItem = inv;
+            //i.IngredientItemType = ingType;
+            //i.State = state;
+            //i.Unit = unit;
+            ////i.FoodItemType = new FoodItemType();
+            ////i.FoodItemType = FoodItemTypes.Where(f => f.Id == TypeId).FirstOrDefault();
+            //i.FoodItemId = ItemId;
+            //ingredientComponentNew.SetMode(IngredientComponentNew.Modes.Create);
+            ingredientComponentNew.NewItem(ItemId);
+            ingredientComponentNew.Show();
+
+        }
+    }
+    public void OnEditClick()
+    {
+        IngredientItem item = items.Single(s => s.Id == IngredientId);
+        ingredientComponentNew.EditItem(item);
+        //ingredientComponentNew.SelInvItem = item.InventoryItem.Id.ToString();
+        //ingredientComponentNew.SelIng = item.IngredientItemType.Id.ToString();
+        //ingredientComponentNew.SelState = item.State.Id.ToString();
+        //ingredientComponentNew.SelUnit = item.Unit.Id.ToString();
+        //ingredientComponentNew.SetMode(IngredientComponentNew.Modes.Edit);
+        ingredientComponentNew.Show();
+    }
+    public async Task OnAddOrEditIngredientSubmitted(EventArgs e)
+    {
+        url = "https://localhost:44300/api/IngredientItemsByFoodItem/" + ItemId;
+        await GetItems(url);
+        //Console.WriteLine("menus.Count = " + items.Count);
+        ItemId = items[items.Count - 1].Id;
+    }
+
+    public async Task OnRemoveClick()
+    {
+        url = ServiceEndpoint + IngredientId;
+        await Http.DeleteAsync(url);
+        url = "https://localhost:44300/api/IngredientItemsByFoodItem/" + ItemId;
+        await GetItems(url);
+        ItemId = 0;
+        //Console.WriteLine("items.Count = " + items.Count);
+    }
+
+    public void OnCopyClick()
+    {
+    }
+
+    //protected override async Task OnInitializedAsync() => await GetTypes();
+
+    //private async Task GetTypes()
+    //{
+    //    types = await Http.GetFromJsonAsync<List<FoodItemType>>(ServiceEndpoint);
+    //    System.Console.WriteLine("1");
+    //}
+
+    protected override async Task OnParametersSetAsync()
+    {
+        //Console.WriteLine("Category.OnParametersSetAsync");
+
+
+        if (IngredientId == 0)
+        {
+            enabled = false;
+        }
+        else if (IngredientId > 0)
+        {
+            enabled = true;
+        }
+
+        if (Reload == 1)
+        {
+            //if (MenuId != null && MenuId > 0)
+            //{
+            url = "https://localhost:44300/api/IngredientItemsByFoodItem/" + ItemId;
+            await GetItems(url);
+            //}
+        }
+
+    }
+    private async Task GetItems(string url)
+    {
+        items = await Http.GetFromJsonAsync<List<IngredientItem>>(url);
+        foreach (var item in items)
+        {
+            if (item.ChildFoodItemId > 0)
+            {
+                url = "https://localhost:44300/api/FoodItems/" + item.ChildFoodItemId;
+                FoodItem f = await Http.GetFromJsonAsync<FoodItem>(url);
+                item.ChildFoodItemName = f.Name;
+            }
+
+        }
+
+    }
+    protected override async Task OnInitializedAsync() => await GetTypes();
+
+    private async Task GetTypes()
+    {
+        FoodItemTypes = await FoodItemService.GetFoodItemTypes(Http, false);
+        //FoodItemTypes = await Http.GetFromJsonAsync<List<FoodItemType>>("https://localhost:44300/api/FoodItemTypes");
+        //System.Console.WriteLine("1");
+    }
+
+}

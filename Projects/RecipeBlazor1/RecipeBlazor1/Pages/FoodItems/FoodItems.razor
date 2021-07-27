@@ -1,0 +1,75 @@
+﻿@page "/fooditems"
+@inject HttpClient Http
+@inject Services.FoodItemService FoodItemService
+
+<head>
+
+    <link rel="stylesheet" type="text/css" href="css/TileComponent.css">
+
+</head>
+
+<style>
+    body {
+        background-color: inherit;
+    }
+
+    .container {
+        background-color: inherit;
+    }
+</style>
+
+<div class="container">
+
+
+    <FoodItemTypeComponent @bind-TypeId="CurrentTypeId" OnTypeClick="ClickTypeHandler" />
+
+    <FoodItemComponent @bind-ItemId="CurrentItemId" @bind-TypeId="CurrentTypeId" @bind-Reload="ItemReload" OnItemClick="ClickItemHandler" />
+
+    <IngredientComponent @bind-IngredientId="CurrentIngredientId" @bind-ItemId="CurrentItemId" @bind-TypeId="CurrentTypeId" @bind-Reload="IngredientReload" OnIngredientClick="ClickIngredientHandler" />
+
+
+
+</div>
+
+
+@code {
+    private const string ServiceEndpoint = "https://localhost:44300/api/FoodItems";
+    private string editRowStyle = "none";
+    private string newItemName;
+
+    public int CurrentTypeId { get; set; }
+    public int CurrentItemId { get; set; }
+    public int CurrentIngredientId { get; set; }
+    public int ItemReload { get; set; }
+    public int IngredientReload { get; set; }
+
+    public void ClickTypeHandler(int Id)
+    {
+        CurrentTypeId = Id;
+
+        CurrentItemId = 0;
+        ItemReload = 1;
+        CurrentIngredientId = 0;
+        IngredientReload = 1;
+    }
+    public void ClickItemHandler(int Id)
+    {
+        CurrentItemId = Id;
+        ItemReload = 0;
+        CurrentIngredientId = 0;
+        IngredientReload = 1;
+
+    }
+    public void ClickIngredientHandler(int Id)
+    {
+        CurrentIngredientId = Id;
+        IngredientReload = 0;
+
+    }
+    public void OnAddOrEditPatientSubmitted(EventArgs e)
+    {
+
+    }
+
+
+}

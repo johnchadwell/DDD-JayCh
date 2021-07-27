@@ -1,0 +1,160 @@
+﻿@inject HttpClient Http
+@inject Services.FoodItemService FoodItemService
+
+@if (IsVisible)
+{
+    <style>
+        /* The Modal (background) */
+        .modal {
+            display: block; /* Shown by default */
+            position: fixed; /* Stay in place */
+            z-index: 1; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgb(0,0,0); /* Fallback color */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+        }
+        /* Modal Content/Box */
+        .modal-content {
+            background-color: #fefefe;
+            margin: 1% auto; /* 10% from the top and centered */
+            padding: 10px;
+            border: 1px solid #888;
+            width: 50%; /* Could be more or less, depending on screen size */
+        }
+    </style>
+    <div class="modal" tabindex="-1" style="display: block" role="dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Menu Category Information</h5>
+            </div>
+
+            <EditForm Model=@FoodItemCategoryObj OnSubmit=@OnSubmit>
+                <div class="modal-body">
+                    <table width="100%">
+                        <tr>
+                            <td>Food Item Type:</td>
+                            <td>
+                                <InputSelect @bind-Value=FoodItemCategoryObj.FoodItemType.Id class="form-control">
+                                    @foreach (var fit in FoodItemTypes)
+                                        {
+                                        <option value="@fit.Id">@fit.Name</option>
+                                        }
+                                </InputSelect>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Name:</td>
+                            <td><InputText @bind-Value=FoodItemCategoryObj.Name style="width:100%;" /></td>
+                        </tr>
+                        <tr>
+                            <td>Description:</td>
+                            <td><InputText @bind-Value=FoodItemCategoryObj.Description style="width:100%;" /></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <input type="submit" value="Ok" class="btn btn-primary" />
+                    <input type="button" value="Cancel" class="btn btn-secondary" @onclick="OnCancel" />
+                </div>
+            </EditForm>
+
+        </div>
+    </div>
+}
+
+@code {
+
+    //[Parameter]
+    //public List<FoodItemType> FoodItemTypes { get; set; }
+
+    /// <summary>
+    /// Visible flag
+    /// </summary>
+    [Parameter]
+    public bool IsVisible { get; set; } = false;
+
+    /// <summary>
+    /// Form mode - Edit or create
+    /// </summary>
+    [Parameter]
+    public Modes Mode { get; set; } = Modes.Create;
+    public void SetMode(Modes mode)
+    {
+        Mode = mode;
+    }
+
+    /// <summary>
+    /// object bound to the form
+    /// </summary>
+    [Parameter]
+    public FoodItem FoodItemCategoryObj { get; set; }
+    public List<FoodItemType> FoodItemTypes { get; set; }
+    public void SetItem(FoodItem foodItemCategoryObj)
+    {
+        FoodItemCategoryObj = foodItemCategoryObj;
+    }
+
+    public enum Modes { Edit, Create };
+
+    public async Task Show()
+    {
+        await GetTypes();
+        IsVisible = true;
+        StateHasChanged();
+    }
+    public void Hide()
+    {
+        IsVisible = false;
+        StateHasChanged();
+    }
+
+    // Callback event to return submit information to the parent page/component
+    [Parameter]
+    public EventCallback<EventArgs> OnSubmitCallback { get; set; }
+
+
+    private async Task OnSubmit()
+    {
+        string ServiceEndpoint = "https://localhost:44300/api/FoodItems";
+
+        if (Mode.Equals(Modes.Create))
+        {
+            await Http.PostAsJsonAsync<FoodItem>(ServiceEndpoint, FoodItemCategoryObj);
+        }
+        else
+        {
+            var url = ServiceEndpoint + "/" + FoodItemCategoryObj.Id;
+            await Http.PutAsJsonAsync(url, FoodItemCategoryObj);
+
+        }
+        //System.Console.WriteLine("1");
+
+
+        //toastService.ShowInfo("Form OnSubmit called");
+        Hide();
+
+        // Call parent's event callback
+        if (OnSubmitCallback.HasDelegate)
+            OnSubmitCallback.InvokeAsync(null);
+    }
+
+    private void OnCancel()
+    {
+        //toastService.ShowInfo("Form OnCancel called");
+        Hide();
+    }
+
+    protected override async Task OnInitializedAsync() => await GetTypes();
+
+    private async Task GetTypes()
+    {
+        FoodItemTypes = await FoodItemService.GetFoodItemTypes(Http, false);
+        //FoodItemTypes = await Http.GetFromJsonAsync<List<FoodItemType>>("https://localhost:44300/api/FoodItemTypes");
+        //System.Console.WriteLine("1");
+    }
+
+}

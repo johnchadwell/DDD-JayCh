@@ -1,0 +1,506 @@
+﻿@inject HttpClient Http
+@inject Services.FoodItemService FoodItemService
+@inject IJSRuntime JS
+
+@if (IsVisible)
+{
+    <style>
+        /* The Modal (background) */
+        .modal {
+            display: block; /* Shown by default */
+            position: fixed; /* Stay in place */
+            z-index: 1; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgb(0,0,0); /* Fallback color */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+        }
+        /* Modal Content/Box */
+        .modal-content {
+            background-color: #fefefe;
+            margin: 1% auto; /* 10% from the top and centered */
+            padding: 10px;
+            border: 1px solid #888;
+            width: 50%; /* Could be more or less, depending on screen size */
+        }
+    </style>
+    <div class="modal" tabindex="-1" style="display: block" role="dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Ingredient Information</h5>
+            </div>
+
+            <EditForm Model=@ItemObj OnSubmit=@OnSubmit>
+                <div class="modal-body">
+                    <table width="100%">
+                        @*<tr>
+                                <td>Test:</td>
+                                <td>
+                                    <InputSelect id="" @bind-Value=SelState2 class="form-control">
+                                        @foreach (var fit in IngTypes)
+                                            {
+                                            <option value="@fit.Id">@fit.Name</option>
+                                            }
+                                    </InputSelect>
+                                </td>
+                            </tr>*@
+                        <tr>
+                            <td>Ingredient Type:</td>
+                            <td>
+                                <InputSelect id="IngredientTypeSelect" @bind-Value=SelIng class="form-control">
+                                    @foreach (var ing in IngTypes)
+                                        {
+                                        <option value="@ing.Id">@ing.Name</option>
+                                        }
+                                </InputSelect>
+                            </td>
+                        </tr>
+                        @if (ShowInventory)
+                        {
+                            Console.WriteLine("REDRAW");
+                            <tr>
+                                <td>Inventory Item:</td>
+                                <td>
+                                    <InputSelect @bind-Value=SelInvItem class="form-control">
+                                        @foreach (var inv in InventoryItems)
+                                                {
+                                            <option value="@inv.Id">@inv.Name</option>
+                                                }
+                                    </InputSelect>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Amount:</td>
+                                <td><InputNumber @bind-Value=ItemObj.Amount style="width:100%;" /></td>
+                            </tr>
+                            <tr>
+                                <td>State:</td>
+                                <td>
+                                    <InputSelect @bind-Value=SelState class="form-control">
+                                        @foreach (var si in StateTypes)
+                                                {
+                                            <option value="@si.Id">@si.Name</option>
+                                                }
+                                    </InputSelect>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Unit:</td>
+                                <td>
+                                    <InputSelect @bind-Value=SelUnit class="form-control">
+                                        @foreach (var ui in UnitTypes)
+                                                {
+                                            <option value="@ui.Id">@ui.Name</option>
+                                                }
+                                    </InputSelect>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Cost:</td>
+                                <td><InputNumber @bind-Value=ItemObj.Cost style="width:100%;" /></td>
+                            </tr>
+                            <tr>
+                                <td>% of Inventory Unit Consumed:</td>
+                                <td><InputNumber @bind-Value=ItemObj.InventoryUnitCount style="width:100%;" /></td>
+                            </tr>
+                        }
+                        else
+                        {
+                            <tr>
+                                <td>Food Item Type:</td>
+                                <td>RECIPE
+                                    @*<InputSelect id="" @bind-Value=SelFoodItemType class="form-control">
+                                        @foreach (var fit in FoodItemTypes)
+                                                {
+                                            <option value="@fit.Id">@fit.Name</option>
+                                                }
+                                    </InputSelect>*@
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Food Item:</td>
+                                <td>
+                                    <InputSelect id="FoodItem" @bind-Value=SelFoodItem class="form-control">
+                                        @foreach (var fi in FoodItems)
+                                                {
+                                            <option value="@fi.Id">@fi.Name</option>
+                                                }
+                                    </InputSelect>
+                                </td>
+                            </tr>
+
+                        }
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <input type="submit" value="Ok" class="btn btn-primary" />
+                    <input type="button" value="Cancel" class="btn btn-secondary" @onclick="OnCancel" />
+                </div>
+            </EditForm>
+
+        </div>
+    </div>
+}
+
+@code {
+
+    //[Parameter]
+    //public List<FoodItemType> FoodItemTypes { get; set; }
+
+    /// <summary>
+    /// Visible flag
+    /// </summary>
+    [Parameter]
+    public bool IsVisible { get; set; } = false;
+
+
+    public bool ShowInventory { get; set; } = true;
+    public bool ShowFoodItem { get; set; } = false;
+
+    [Parameter]
+    public int Reload { get; set; }
+
+    [Parameter]
+    public EventCallback<int> ReloadChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<int> OnReloadClick { get; set; }
+
+    /// <summary>
+    /// Form mode - Edit or create
+    /// </summary>
+    [Parameter]
+    public Modes Mode { get; set; }
+    public void SetMode(Modes mode)
+    {
+        Mode = mode;
+    }
+
+    //private string selFoodItemType2;
+    //public string SelFoodItemType2
+    //{
+    //    get => selFoodItemType2;
+    //    set
+    //    {
+    //        selFoodItemType2 = value;
+    //        Console.WriteLine("selFoodItemType2 = " + value);
+    //    }
+    //}
+    //private string selState2;
+    //public string SelState2
+    //{
+    //    get => selState2;
+    //    set
+    //    {
+    //        selState2 = value;
+    //        Console.WriteLine("SelState2 = " + value);
+    //        int v = Convert.ToInt32(value);
+    //        Console.WriteLine("v = " + v);
+    //        IngredientItemType it = IngTypes.Where(i => i.Id == v).First();
+    //        Console.WriteLine("it = " + it);
+    //        if (it.Name == "Inventory")
+    //        {
+    //            ShowInventory = true;
+    //            ShowFoodItem = false;
+    //        }
+    //        else
+    //        {
+    //            ShowInventory = false;
+    //            ShowFoodItem = true;
+    //        }
+    //        Console.WriteLine("ShowInventory = " + ShowInventory);
+    //        StateHasChanged();
+    //        //OnReloadClick.InvokeAsync(1);
+    //    }
+    //}
+
+
+
+
+    //private string selFoodItemType3;
+    //public string SelFoodItemType3
+    //{
+    //    get => selFoodItemType3;
+    //    set
+    //    {
+    //        selFoodItemType3 = value;
+    //        Console.WriteLine("selFoodItemType23 = " + value);
+    //    }
+    //}
+
+
+    //private string selFoodItemType;
+    //public string SelFoodItemType
+    //{
+    //    get => selFoodItemType;
+    //    set
+    //    {
+    //        selFoodItemType = value;
+    //        Console.WriteLine("selFoodItemType = " + value);
+    //        if (value == null || value == "")
+    //        {
+    //            FoodItems = FoodItemService.FilterFoodItems(0);
+    //            SelFoodItem = "";
+    //        }
+    //        else
+    //        {
+    //            FoodItems = FoodItemService.FilterFoodItems(Convert.ToInt32(value));
+    //            SelFoodItem = FoodItems[0].Id.ToString();
+    //        }
+    //    }
+    //}
+
+    private string selFoodItem;
+    public string SelFoodItem
+    {
+        get => selFoodItem;
+        set
+        {
+            selFoodItem = value;
+            Console.WriteLine("selFoodItem = " + value);
+        }
+    }
+
+
+    private string selIng;
+    public string SelIng
+    {
+        get => selIng;
+        set
+        {
+            selIng = value;
+            Console.WriteLine("selIng = " + value);
+            int v = Convert.ToInt32(value);
+            Console.WriteLine("v = " + v);
+            IngredientItemType it = IngTypes.Where(i => i.Id == v).First();
+            Console.WriteLine("it = " + it);
+            if (it.Name == "Inventory")
+            {
+                ShowInventory = true;
+                ShowFoodItem = false;
+            }
+            else
+            {
+                ShowInventory = false;
+                ShowFoodItem = true;
+            }
+            Console.WriteLine("ShowInventory = " + ShowInventory);
+            StateHasChanged();
+            //OnReloadClick.InvokeAsync();
+        }
+    }
+
+    private string selInvItem;
+    public string SelInvItem
+    {
+        get => selInvItem;
+        set
+        {
+            selInvItem = value;
+        }
+    }
+    private string selState;
+    public string SelState
+    {
+        get => selState;
+        set
+        {
+            selState = value;
+        }
+    }
+    private string selUnit;
+    public string SelUnit
+    {
+        get => selUnit;
+        set
+        {
+            selUnit = value;
+        }
+    }
+
+    /// <summary>
+    /// object bound to the form
+    /// </summary>
+    [Parameter]
+    public IngredientItem ItemObj { get; set; }
+    public List<InventoryItem> InventoryItems { get; set; }
+    public List<IngredientItemType> IngTypes { get; set; }
+    public List<IngredientStateType> StateTypes { get; set; }
+    public List<IngredientUnitType> UnitTypes { get; set; }
+    public List<FoodItemType> FoodItemTypes { get; set; }
+    public List<FoodItem> FoodItems { get; set; }
+
+
+
+    public void NewItem(int ItemId)
+    {
+        Mode = Modes.Create;
+
+        //SelFoodItemType = FoodItemTypes[0].Id.ToString();
+
+        IngredientItem i = new IngredientItem();
+        i.FoodItemId = ItemId;
+
+        InventoryItem inv = new InventoryItem();
+        IngredientItemType ingType = new IngredientItemType();
+        IngredientStateType state = new IngredientStateType();
+        IngredientUnitType unit = new IngredientUnitType();
+        i.InventoryItem = inv;
+        i.IngredientItemType = ingType;
+        i.State = state;
+        i.Unit = unit;
+        SelIng = IngTypes[0].Id.ToString();
+        SelFoodItem = FoodItems[0].Id.ToString();
+
+        ItemObj = i;
+    }
+    public void EditItem(IngredientItem itemObj)
+    {
+        Mode = Modes.Edit;
+
+        SelFoodItem = FoodItems[0].Id.ToString();
+
+        if (itemObj.IngredientItemType.Name == "Inventory")
+        {
+            //SelFoodItemType = FoodItemTypes[0].Id.ToString();
+        }
+        else
+        {
+            if (itemObj.ChildFoodItemId == null)
+            {
+                itemObj.ChildFoodItemId = 0;
+                //SelFoodItemType = FoodItemTypes[0].Id.ToString();
+            }
+            else if (itemObj.ChildFoodItemId == 0)
+            {
+                //SelFoodItemType = FoodItemTypes[0].Id.ToString();
+            }
+            else
+            {
+                //FoodItem fi = FoodItems.Where(i => i.Id == itemObj.ChildFoodItemId).First();
+                //SelFoodItemType = fi.FoodItemType.Id.ToString();
+                SelFoodItem = itemObj.ChildFoodItemId.ToString();
+            }
+
+        }
+
+
+        SelInvItem = itemObj.InventoryItem.Id.ToString();
+        SelIng = itemObj.IngredientItemType.Id.ToString();
+        SelState = itemObj.State.Id.ToString();
+        SelUnit = itemObj.Unit.Id.ToString();
+
+        ItemObj = itemObj;
+    }
+
+    public enum Modes { Edit, Create };
+
+    public async Task Show()
+    {
+        await GetTypes();
+        IsVisible = true;
+        StateHasChanged();
+    }
+    public void Hide()
+    {
+        IsVisible = false;
+        StateHasChanged();
+    }
+
+    // Callback event to return submit information to the parent page/component
+    [Parameter]
+    public EventCallback<EventArgs> OnSubmitCallback { get; set; }
+
+
+    private async Task OnSubmit()
+    {
+        string ServiceEndpoint = "https://localhost:44300/api/IngredientItems";
+
+        int v = Convert.ToInt32(SelIng);
+        IngredientItemType it = IngTypes.Where(i => i.Id == v).First();
+        if (it.Name == "Inventory")
+        {
+            ItemObj.ChildFoodItemId = 0;
+            ItemObj.ChildFoodItemName = "";
+        }
+        else
+        {
+            FoodItem fi = FoodItems.Where(i => i.Id == Convert.ToInt32(SelFoodItem)).First();
+            ItemObj.ChildFoodItemId = fi.Id;
+            ItemObj.ChildFoodItemName = fi.Name;
+        }
+
+
+        if (Mode.Equals(Modes.Create))
+        {
+
+            if (SelInvItem == null) SelInvItem = InventoryItems[0].Id.ToString();
+            if (SelIng == null) SelIng = IngTypes[0].Id.ToString();
+            if (SelState == null) SelState = StateTypes[0].Id.ToString();
+            if (SelUnit == null) SelUnit = UnitTypes[0].Id.ToString();
+            ItemObj.InventoryItem.Id = Convert.ToInt32(SelInvItem);
+            ItemObj.IngredientItemType.Id = Convert.ToInt32(SelIng);
+            ItemObj.State.Id = Convert.ToInt32(SelState);
+            ItemObj.Unit.Id = Convert.ToInt32(SelUnit);
+
+
+            await Http.PostAsJsonAsync<IngredientItem>(ServiceEndpoint, ItemObj);
+        }
+        else
+        {
+            ItemObj.InventoryItem.Id = Convert.ToInt32(SelInvItem);
+            ItemObj.IngredientItemType.Id = Convert.ToInt32(SelIng);
+            ItemObj.State.Id = Convert.ToInt32(SelState);
+            ItemObj.Unit.Id = Convert.ToInt32(SelUnit);
+
+            var url = ServiceEndpoint + "/" + ItemObj.Id;
+            await Http.PutAsJsonAsync(url, ItemObj);
+
+        }
+        //System.Console.WriteLine("1");
+
+
+        //toastService.ShowInfo("Form OnSubmit called");
+        Hide();
+
+        // Call parent's event callback
+        if (OnSubmitCallback.HasDelegate)
+            OnSubmitCallback.InvokeAsync(null);
+    }
+
+    private void OnCancel()
+    {
+        //toastService.ShowInfo("Form OnCancel called");
+        Hide();
+    }
+    protected override async Task OnParametersSetAsync()
+    {
+        Console.WriteLine("Category.OnParametersSetAsync");
+
+
+
+    }
+
+    protected override async Task OnInitializedAsync() => await GetTypes();
+
+    private async Task GetTypes()
+    {
+        InventoryItems = await Http.GetFromJsonAsync<List<InventoryItem>>("https://localhost:44300/api/InventoryItems");
+        IngTypes = await Http.GetFromJsonAsync<List<IngredientItemType>>("https://localhost:44300/api/IngredientItemTypes");
+        StateTypes = await Http.GetFromJsonAsync<List<IngredientStateType>>("https://localhost:44300/api/IngredientStateTypes");
+        UnitTypes = await Http.GetFromJsonAsync<List<IngredientUnitType>>("https://localhost:44300/api/IngredientUnitTypes");
+        FoodItemTypes = await FoodItemService.GetFoodItemTypes(Http, false);
+        //FoodItemTypes = await Http.GetFromJsonAsync<List<FoodItemType>>("https://localhost:44300/api/FoodItemTypes");
+        await FoodItemService.GetFoodItems(Http, false);
+        //await Http.GetFromJsonAsync<List<FoodItemType>>(ServiceEndpoint);
+        FoodItems = FoodItemService.FilterFoodItems(FoodItemTypes.Where(i => i.Name == "RECIPES").First().Id);
+        //FoodItems = await Http.GetFromJsonAsync<List<FoodItem>>("https://localhost:44300/api/FoodItems");
+        //SelFoodItem = FoodItems[0].Id.ToString();
+        //types = await Http.GetFromJsonAsync<List<FoodItemType>>(ServiceEndpoint);
+        System.Console.WriteLine("1");
+    }
+
+}

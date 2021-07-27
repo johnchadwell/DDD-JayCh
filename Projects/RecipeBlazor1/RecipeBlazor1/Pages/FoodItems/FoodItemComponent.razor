@@ -1,0 +1,200 @@
+﻿@inject HttpClient Http
+@inject Services.FoodItemService FoodItemService
+@inject IJSRuntime JS
+
+<style>
+
+    .food {
+        border-radius: 10px;
+        border: 1px solid #D500F9;
+        background-color: #EFA0FD;
+        color: #ffffff
+    }
+
+    .foodSelected {
+        border-radius: 10px;
+        border: 5px solid #D500F9;
+        background-color: #EFA0FD;
+        color: #ffffff
+    }
+</style>
+
+<div style="background-color:inherit">
+
+    <div class="d-flex">
+
+
+        <div class="p-2 border" style="text-align:center;vertical-align:middle;width:40px;height:40px;margin:10px;">
+            <a id="MenuAdd" @onclick="@OnAddClick" class="enabled"><i class="fas fa-plus"></i></a>
+        </div>
+        <div class="p-2 border" style="text-align:center;vertical-align:middle;width:40px;height:40px;margin:10px;">
+            <a id="MenuEdit" href="" @onclick="@OnEditClick" @onclick:preventDefault class="@((enabled? "enabled" : "disabled"))"><i class="fas fa-edit"></i></a>
+        </div>
+        <div class="p-2 border" style="text-align:center;vertical-align:middle;width:40px;height:40px;margin:10px;">
+            <a id="MenuRemove" href="" @onclick="@OnRemoveClick" @onclick:preventDefault class="@((enabled? "enabled" : "disabled"))"><i class="fas fa-minus"></i></a>
+        </div>
+        <div class="p-2 border" style="text-align:center;vertical-align:middle;width:40px;height:40px;margin:10px;">
+            <a id="MenuCopy" href="#" @onclick="@OnCopyClick" @onclick:preventDefault class="@((enabled? "enabled" : "disabled"))"><i class="fas fa-paste"></i></a>
+        </div>
+        <div class="p-2" style="text-align:left;vertical-align:middle;width:200px;height:40px;margin:10px;font-size:1.5em;">
+            Food Items
+        </div>
+    </div>
+
+    <div class="d-flex flex-wrap tile-container">
+
+        @foreach (var item in items)
+        {
+            //var backcolor = "#ffffff";
+            //var color = "#000000";
+            //if (item.Id == MenuCategoryId)
+            //{
+            //    backcolor = "#0000FF";
+            //    color = "#ffffff";
+            //}
+            //  background-color:@backcolor; color:@color
+
+
+            var selclass = "food";
+            if (item.Id == ItemId)
+            {
+                selclass = "foodSelected";
+            }
+
+            <div class="catDiv p-2 @selclass" style="text-align:center;vertical-align:middle;margin:10px;">
+                <a @onclick="@(() => OnItemClick.InvokeAsync(@item.Id))" class="btn" style="width: 100px; height: 100px; ">
+                    @item.Name
+                </a>
+            </div>
+        }
+    </div>
+
+    <FoodItemComponentNew @ref="fooditemComponentNew" OnSubmitCallback="OnAddOrEditFoodItemSubmitted"></FoodItemComponentNew>
+
+</div>
+
+@code {
+    [Parameter]
+    public int ItemId { get; set; }
+    [Parameter]
+    public int TypeId { get; set; }
+    [Parameter]
+    public int Reload { get; set; }
+    [Parameter]
+    public EventCallback<int> OnItemClick { get; set; }
+    [Parameter]
+    public EventCallback<int> ItemIdChanged { get; set; }
+    [Parameter]
+    public EventCallback<int> TypeIdChanged { get; set; }
+    [Parameter]
+    public EventCallback<int> ReloadChanged { get; set; }
+
+    public List<FoodItemType> FoodItemTypes { get; set; }
+
+    FoodItemComponentNew fooditemComponentNew;
+    string ServiceEndpoint = "https://localhost:44300/api/FoodItems/";
+
+
+    private string url { get; set; }
+    private List<FoodItem> items = new List<FoodItem>();
+    private bool enabled = false;
+
+
+    public async Task OnAddClick()
+    {
+        if (TypeId == 0)
+        {
+            await JS.InvokeVoidAsync("alert", "Please Select a Food Type."); // Alert
+
+        }
+        else
+        {
+
+            await GetTypes();
+            FoodItem i = new FoodItem();
+            //i.FoodItemType = new FoodItemType();
+            i.FoodItemType = FoodItemTypes.Where(f => f.Id == TypeId).FirstOrDefault();
+            fooditemComponentNew.SetItem(i);
+            fooditemComponentNew.SetMode(FoodItemComponentNew.Modes.Create);
+            fooditemComponentNew.Show();
+        }
+
+
+    }
+    public void OnEditClick()
+    {
+        fooditemComponentNew.SetItem(items.Single(s => s.Id == ItemId));
+        fooditemComponentNew.SetMode(FoodItemComponentNew.Modes.Edit);
+        fooditemComponentNew.Show();
+    }
+    public async Task OnAddOrEditFoodItemSubmitted(EventArgs e)
+    {
+        //Console.WriteLine("OnAddOrEditMenuSubmitted");
+        url = "https://localhost:44300/api/FoodItemsByType/" + TypeId;
+        await GetItems(url);
+        //Console.WriteLine("menus.Count = " + items.Count);
+        ItemId = items[items.Count - 1].Id;
+    }
+
+    public async Task OnRemoveClick()
+    {
+        url = ServiceEndpoint + ItemId;
+        await Http.DeleteAsync(url);
+        url = "https://localhost:44300/api/FoodItemsByType/" + TypeId;
+        await GetItems(url);
+        ItemId = 0;
+        //Console.WriteLine("items.Count = " + items.Count);
+    }
+
+    public void OnCopyClick()
+    {
+    }
+
+    //protected override async Task OnInitializedAsync() => await GetTypes();
+
+    //private async Task GetTypes()
+    //{
+    //    types = await Http.GetFromJsonAsync<List<FoodItemType>>(ServiceEndpoint);
+    //    System.Console.WriteLine("1");
+    //}
+
+    protected override async Task OnParametersSetAsync()
+    {
+        //Console.WriteLine("Category.OnParametersSetAsync");
+
+
+        if (ItemId == 0)
+        {
+            enabled = false;
+        }
+        else if (ItemId > 0)
+        {
+            enabled = true;
+        }
+
+        if (Reload == 1)
+        {
+            //if (MenuId != null && MenuId > 0)
+            //{
+            url = "https://localhost:44300/api/FoodItemsByType/" + TypeId;
+            await GetItems(url);
+            //}
+
+        }
+
+    }
+    private async Task GetItems(string url)
+    {
+        items = await Http.GetFromJsonAsync<List<FoodItem>>(url);
+
+    }
+    protected override async Task OnInitializedAsync() => await GetTypes();
+
+    private async Task GetTypes()
+    {
+        FoodItemTypes = await FoodItemService.GetFoodItemTypes(Http, false);
+        //FoodItemTypes = await Http.GetFromJsonAsync<List<FoodItemType>>("https://localhost:44300/api/FoodItemTypes");
+        //System.Console.WriteLine("1");
+    }
+
+}
