@@ -1,0 +1,47 @@
+﻿@inherits LayoutComponentBase
+
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/fontawesome.css">
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/solid.css">
+
+    <link rel="stylesheet" type="text/css" href="css/TileComponent.css">
+
+<style>
+
+    @@media screen and (max-width: 800px) {
+        .top-row1 {
+            align-items: start;
+        }
+    }
+    @@media screen and (min-width: 801px) {
+        .top-row1 {
+            align-items: stretch;
+        }
+    }
+    .top-row1 {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        background-color: #0F1020;
+        border: 1px solid #d6d5d5;
+        justify-content: flex-start;
+        height: 2.5rem;
+        display: flex;
+    }
+    body {
+        background: #FFFFFF !important;
+    }
+
+</style>
+
+    <div style="display:flex;flex-direction:column">
+        <div class="top-row1">
+            <NavMenu />
+        </div>
+
+        <div class="main">
+
+            <div class="content px-4">
+                @Body
+            </div>
+        </div>
+        </div>
