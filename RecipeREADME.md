@@ -4,7 +4,9 @@ Domain Driven Design
 
 ## Project Description
 
-The project chosen for this class was to build a recipe inventory system for a restaurant. The objective was to design a inventory tracking system such that as orders are made then inventory items will be deducted based on the the recipe ingredients. When an inventory item "quantity" is reduced to a certain threshold from numerous orders then an inventory order is generated. Once the inventory order is delivered then the quantity value is updated for that inventory item.
+The project chosen for this class was to build a recipe inventory system for a restaurant. The objective was to design a inventory tracking system such that as orders are made then inventory items will be deducted based on the the recipe ingredients. When an inventory item "quantity" is reduced to a certain threshold from numerous orders then an inventory order is generated. Once the inventory order is delivered then the quantity value is updated for that inventory item. 
+
+The primary entity that controls the inventory deduction is the Ingredient Item (Prelim) where you identity the amount consumed in the recipe amd the amount consumed in the inventory item. Am ingredient in a recipe may define consumption based on things like tsps, tbsps, cups, etc while the inventory item would track things in ibs, gallons, quarts, or event indiviual items like a single onion. You can see some examples of this in the FoodItem screenshots.
 
 ## Design Limitations
 
